@@ -1,267 +1,115 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import axios from "axios";
-import "../../App.css";
-import { GoogleLogin } from "@react-oauth/google";
 
-// const { loginWithGoogle } = useAuth();
+import AddFood from "./components/AddFood";
+import ChatPage from "./components/ChatPage";
+import DonatePage from "./components/DonatePage";
+import FarmerHome from "./components/farmer/FarmerHome";
+import FarmerNavBar from "./components/farmer/FarmerNavBar";
+import FarmerSetup from "./components/farmer/FarmerSetup";
+import FoodList from "./components/FoodList";
+import IdeaPage from "./components/farmer/IdeaPage";
+import LoginPage from "./components/auth/LoginPage";
+import NavBar from "./components/NavBar";
+import OAuthHandler from "./components/auth/OAuthHandler";
+import ProfilePage from "./components/ProfilePage";
+import RegisterPage from "./components/auth/RegisterPage";
+import TipBanner from "./components/TipBanner";
+import WastageGraph from "./components/WastageGraph";
+import { useAuth } from "./contexts/AuthContext";
+import "./App.css";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [recoveryEmail, setRecoveryEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const navigate = useNavigate();
+function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
-  const { login, loginWithGoogle, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
-  // ✅ Handle Normal Email/Password Login
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    try {
-      console.log("📤 Attempting login:", { email, password });
-      await login(email, password);
-      setSuccess("✅ Login successful! Redirecting...");
-      setTimeout(() => navigate("/home"), 1000);
-    } catch (err) {
-      console.error("❌ Login error:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Login failed. Please try again.");
-    }
-  };
+  useEffect(() => {
+    setIsDarkMode(localStorage.getItem("theme") === "dark");
+  }, []);
 
-  // ✅ Request OTP for password reset
-  const handleRequestOtp = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!recoveryEmail) {
-      setError("Please enter your email address");
+  useEffect(() => {
+    const backgroundColor = isDarkMode ? "hsl(0, 0%, 10%)" : "hsl(0, 0%, 98%)";
+    const textColor = isDarkMode ? "#f0f0f0" : "#111";
+
+    document.body.style.setProperty("--bg-color", backgroundColor);
+    document.body.style.setProperty("--text-color", textColor);
+    document.body.style.backgroundColor = backgroundColor;
+    document.body.style.color = textColor;
+    document.body.classList.toggle("dark", isDarkMode);
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    if (!isAuthenticated || !token || !userId || sessionStorage.getItem("locationUpdated") === "true") {
       return;
     }
-    try {
-      await axios.post("http://localhost:5000/auth/request-otp", {
-        email: recoveryEmail,
-      });
-      setOtpSent(true);
-      setSuccess("✅ OTP sent to your email. Please check your inbox.");
-    } catch (err) {
-      console.error("❌ OTP request failed:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to send OTP.");
-    }
-  };
 
-  // ✅ Reset Password Using OTP
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    try {
-      await axios.post("http://localhost:5000/auth/reset-password", {
-        email: recoveryEmail,
-        otp,
-        newPassword,
-      });
-      setSuccess("✅ Password reset successful! You can now log in.");
-      setShowForgotPassword(false);
-      setRecoveryEmail("");
-      setOtp("");
-      setNewPassword("");
-      setOtpSent(false);
-      setShowNewPassword(false);
-    } catch (err) {
-      console.error("❌ Password reset failed:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "Failed to reset password.");
-    }
-  };
+    sessionStorage.setItem("locationUpdated", "true");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          await axios.post("http://localhost:5000/api/save-location", {
+            userId,
+            coords: { lat: coords.latitude, lng: coords.longitude },
+          });
+        } catch (error) {
+          console.error("Failed to auto-save location:", error);
+        }
+      },
+      (error) => console.warn("Location unavailable:", error.message),
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
+    );
+  }, [isAuthenticated]);
 
-
-  // ✅ Redirect if already logged in
-useEffect(() => {
-  // Redirect ONLY if the user is on the login page
-  if (user && location.pathname === "/login") {
-    navigate("/home");
-  }
-}, [user, navigate, location.pathname]);
+  const userRole = user?.role || localStorage.getItem("userRole") || "user";
+  const hideLayout = location.pathname.startsWith("/chat");
 
   return (
-    <div className="login-container">
-      {/* Feedback Messages */}
-      {error && <div className="error-message">⚠️ {error}</div>}
-      {success && <div className="success-message">✅ {success}</div>}
-
-      {/* === Normal Login Form === */}
-      {!user && !showForgotPassword && (
-        <form onSubmit={handleLogin} style={{ textAlign: "center" }}>
-          <h2>Login</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <label>
-            <input
-              type="checkbox"
-              checked={showPassword}
-              onChange={() => setShowPassword((prev) => !prev)}
-            />
-            Show Password
-          </label>
-          <button type="submit" className="login-btn">
-            Login
-          </button>
-        </form>
+    <div className="App">
+      {!hideLayout && isAuthenticated && (
+        <>
+          {userRole === "farmer" ? <FarmerNavBar logout={logout} /> : <NavBar />}
+          <div className="theme-toggle-container">
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={isDarkMode}
+                onChange={() => setIsDarkMode((current) => !current)}
+              />
+              <span className="slider round" />
+            </label>
+            <span>{isDarkMode ? "🌙 Dark Mode" : "🌞 Light Mode"}</span>
+          </div>
+          <div className="main-bg" />
+        </>
       )}
 
-      {/* === Google & Forgot Password Buttons === */}
-      {!showForgotPassword && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            marginTop: "2rem",
-          }}
-        >
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              try {
-                const token = credentialResponse.credential;
+      <div className={`content-wrapper ${hideLayout ? "chat-content-wrapper" : "relative z-10"}`}>
+        <Routes>
+          <Route path="/" element={isAuthenticated ? <Navigate to="/home" replace /> : <LoginPage />} />
+          <Route path="/register" element={isAuthenticated ? <Navigate to="/home" replace /> : <RegisterPage />} />
+          <Route path="/auth/google/callback" element={<OAuthHandler />} />
+          <Route path="/home" element={isAuthenticated ? <AddFood /> : <Navigate to="/" replace />} />
+          <Route path="/inventory" element={isAuthenticated ? <FoodList /> : <Navigate to="/" replace />} />
+          <Route path="/wastage" element={isAuthenticated ? <WastageGraph /> : <Navigate to="/" replace />} />
+          <Route path="/donate" element={isAuthenticated ? <DonatePage /> : <Navigate to="/" replace />} />
+          <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/" replace />} />
+          <Route path="/farmer/dashboard" element={isAuthenticated ? <FarmerHome /> : <Navigate to="/" replace />} />
+          <Route path="/farmer/farm-info" element={isAuthenticated ? <FarmerSetup /> : <Navigate to="/" replace />} />
+          <Route path="/farmer/ideas" element={isAuthenticated ? <IdeaPage /> : <Navigate to="/" replace />} />
+          <Route path="/chat/:farmerId" element={<ChatPage />} />
+          <Route path="*" element={isAuthenticated ? <Navigate to="/home" replace /> : <Navigate to="/" replace />} />
+        </Routes>
+      </div>
 
-                // ✅ Use your AuthContext method instead of raw axios
-                const user = await loginWithGoogle(token);
-
-                console.log("✅ Google login success:", user);
-                navigate("/home"); // ✅ Navigate immediately after login
-
-              } catch (err) {
-                console.error("❌ Google login failed:", err.response?.data || err.message);
-                setError(err.response?.data?.message || "Google login failed. Please try again.");
-              }
-            }}
-            onError={() => console.error("❌ Google Login Failed")}
-          />
-
-
-          <button
-            type="button"
-            onClick={() => {
-              setShowForgotPassword(true);
-              setError("");
-              setSuccess("");
-            }}
-            style={{
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              padding: "10px 20px",
-              cursor: "pointer",
-              fontWeight: "500",
-              fontSize: "1rem",
-            }}
-          >
-            Forgot Password?
-          </button>
-        </div>
-      )}
-
-      {/* === Forgot Password / OTP Section === */}
-      {showForgotPassword && (
-        <div style={{ textAlign: "center" }}>
-          <h2>Reset Password</h2>
-          {!otpSent ? (
-            <form onSubmit={handleRequestOtp}>
-              <input
-                type="email"
-                placeholder="Enter your registered email"
-                value={recoveryEmail}
-                onChange={(e) => setRecoveryEmail(e.target.value)}
-                required
-              />
-              <button type="submit" className="otp-btn">
-                Request OTP
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleResetPassword}>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
-              <input
-                type={showNewPassword ? "text" : "password"}
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-              <label>
-                <input
-                  type="checkbox"
-                  checked={showNewPassword}
-                  onChange={() => setShowNewPassword((prev) => !prev)}
-                />
-                Show Password
-              </label>
-              <button type="submit" className="otp-btn">
-                Reset Password
-              </button>
-            </form>
-          )}
-          <button
-            onClick={() => {
-              setShowForgotPassword(false);
-              setOtpSent(false);
-              setError("");
-              setSuccess("");
-            }}
-            style={{
-              marginTop: "1rem",
-              backgroundColor: "#e11d48",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              padding: "8px 16px",
-              cursor: "pointer",
-              fontWeight: "500",
-            }}
-          >
-            Back to Login
-          </button>
-        </div>
-      )}
-
-      {/* === Register Link === */}
-      <p style={{ textAlign: "center", marginTop: "1rem" }}>
-        Don't have an account? <Link to="/register">Create New Account</Link>
-      </p>
+      {!hideLayout && isAuthenticated && userRole === "user" && <TipBanner />}
     </div>
   );
-};
+}
 
-export default LoginPage;
+export default App;

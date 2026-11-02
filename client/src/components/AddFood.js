@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 function AddFood() {
   const [image, setImage] = useState(null);
   const [foodData, setFoodData] = useState(null);
+  const [storageMode, setStorageMode] = useState("refrigerated");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null); // 👈 Reference to file input
   const navigate = useNavigate();
@@ -22,14 +23,16 @@ function AddFood() {
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/ai/analyze", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post("http://localhost:5000/ai/analyze", formData);
 
       setFoodData(res.data.data);
     } catch (err) {
       console.error("❌ Error scanning image:", err);
-      alert("Failed to analyze image. Please try again.");
+      alert(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Failed to analyze image. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -44,13 +47,13 @@ function AddFood() {
         return alert("No food data to save. Please scan an image first.");
       }
 
-      const today = new Date();
-
       const payload = {
-        name: foodData.name || "Unknown Food",
-        category: foodData.category || "Misc",
-        shelfLife: foodData.shelfLife || 3,
-        mDate: today.toISOString(),
+        name: foodData.food_item || "Unknown Food",
+        category: foodData.category || "Other",
+        shelfLife: storageMode === "refrigerated"
+          ? foodData.shelf_life_refrigerated_days
+          : foodData.shelf_life_room_temp_days,
+        mDate: new Date().toISOString().slice(0, 10),
       };
 
       console.log("📦 Sending payload to backend:", payload);
@@ -75,6 +78,7 @@ function AddFood() {
     if (window.confirm("Are you sure you want to remove this item?")) {
       setImage(null);
       setFoodData(null);
+      setStorageMode("refrigerated");
       setLoading(false);
 
       // 👇 Reset file input value so the same file can be reselected
@@ -93,7 +97,7 @@ function AddFood() {
         <input
           ref={fileInputRef} // 👈 attach the ref
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           onChange={handleImageUpload}
           hidden
         />
@@ -119,10 +123,38 @@ function AddFood() {
       {/* Display results */}
       {foodData && (
         <div className="food-info-card">
-          <h3>{foodData.name || "Unknown Food"}</h3>
-          <p>🥫 Category: {foodData.category || "N/A"}</p>
-          <p>🧊 Best Stored: {foodData.storage || "Unknown"}</p>
-          <p>⌛ Shelf Life: {foodData.shelfLife || "?"} days</p>
+          <h3>{foodData.food_item || "Unknown Food"}</h3>
+          <div className="storage-toggle">
+            <button
+              className={storageMode === "refrigerated" ? "active" : ""}
+              onClick={() => setStorageMode("refrigerated")}
+            >
+              🧊 Refrigerator
+            </button>
+            <button
+              className={storageMode === "roomTemp" ? "active" : ""}
+              onClick={() => setStorageMode("roomTemp")}
+            >
+              🌡️ Room Temp
+            </button>
+          </div>
+          <p>📦 Category: {foodData.category}</p>
+          <p>🌡️ Best Stored: {foodData.recommended_storage_temp_celsius}</p>
+          <p>
+            ⏳ Days Remaining ({storageMode === "refrigerated" ? "Fridge" : "Room Temp"}): {storageMode === "refrigerated"
+              ? foodData.shelf_life_refrigerated_days
+              : foodData.shelf_life_room_temp_days} days
+          </p>
+          <p>📅 Best Before: {storageMode === "refrigerated" ? foodData.best_before_refrigerated : foodData.best_before_room_temp}</p>
+          <p>🌿 Freshness: {foodData.freshness_score}% ({foodData.freshness_status})</p>
+          <p>🔢 Quantity: {foodData.estimated_quantity}</p>
+          <p>🎯 Confidence: {foodData.confidence}%</p>
+          <p>🔍 {foodData.visible_spoilage_signs.join(", ") || "No visible spoilage signs"}</p>
+          {foodData.freshness_status === "Donate Now" && (
+            <button className="btn donate-btn" onClick={() => navigate("/donate", { state: { foodData } })}>
+              Send to Donate
+            </button>
+          )}
 
           <div style={{ display: "flex", gap: "10px" }}>
             <button className="btn add-btn" onClick={handleSave}>

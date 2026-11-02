@@ -19,7 +19,14 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, callback) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+    callback(null, allowedTypes.includes(file.mimetype));
+  },
+});
 
 /* ----------------------------------------------------------
  🧠 1️⃣ Food Image Analysis (AI vision)
@@ -41,7 +48,7 @@ router.post("/analyze", upload.single("image"), async (req, res) => {
     console.error("❌ AI route error:", error);
     res.status(500).json({
       message: "AI analysis failed",
-      error: error.message,
+      error: error.message || "Food recognition is currently unavailable.",
     });
   }
 });

@@ -31,9 +31,7 @@ const RegisterPage = () => {
         formData.append("farmerDocs", farmerDocs);
       }
 
-      await axios.post("http://localhost:5000/auth/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post("http://localhost:5000/auth/register", formData);
 
       alert("Registration successful! You can now log in.");
       navigate("/");

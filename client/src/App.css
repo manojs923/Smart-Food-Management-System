@@ -65,7 +65,7 @@ body.dark::after {
   min-height: 100vh;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   margin: 10px;
@@ -74,9 +74,11 @@ body.dark::after {
 }
 
 .main-bg {
-  min-height: 100vh;
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
   width: 100%;
-  position: relative;
+  pointer-events: none;
   z-index: 0;
   border-radius: 15px;
 }
@@ -116,6 +118,18 @@ body.dark .content-wrapper::before {
 .content-wrapper > * {
   position: relative;
   z-index: 1;
+}
+
+.chat-content-wrapper {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
 }
 
 h1, h2, .main-title {
@@ -2569,5 +2583,170 @@ body.light .artistic-bg-img {
   .search-filter-container {
     padding: 8px;
     border-radius: 12px;
+  }
+}
+
+.storage-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.storage-toggle button {
+  padding: 6px 14px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  background: white;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.storage-toggle button.active {
+  background: #2563eb;
+  color: white;
+}
+
+.donate-btn {
+  background: #16a34a;
+  margin-bottom: 12px;
+}
+
+.donation-preview,
+.donation-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 auto 16px;
+  max-width: 640px;
+  padding: 12px 16px;
+  border-left: 4px solid #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.donate-tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 760px;
+  margin: 20px auto 12px;
+}
+
+.donate-tabs button {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #2563eb;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.donate-tabs button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.donate-path-description,
+.rate-disclaimer {
+  max-width: 760px;
+  margin: 0 auto 18px;
+  color: #4b5563;
+  text-align: center;
+}
+
+.donation-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.donation-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.donation-card h3,
+.donation-card p {
+  margin: 0 0 6px;
+}
+
+.partner-type {
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.badge {
+  align-self: flex-start;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.badge.free {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.badge.paid {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pickup-form-wrap {
+  max-width: 760px;
+  margin: 20px auto 0;
+}
+
+.pickup-form {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 2px solid #2563eb;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.pickup-form h3,
+.pickup-form p {
+  margin: 0;
+}
+
+.pickup-form label {
+  display: grid;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.pickup-form input,
+.pickup-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font: inherit;
+}
+
+@media (max-width: 600px) {
+  .donate-tabs {
+    flex-direction: column;
   }
 }

@@ -35,6 +35,7 @@ import wastageRoutes from "./routes/wastageRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import donationRoutes from "./routes/donationRoutes.js";
 
 // === Google Auth Client ===
 import { OAuth2Client } from "google-auth-library";
@@ -98,13 +99,9 @@ app.post("/auth/register", upload.single("farmerDocs"), async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    // ✅ **SECURITY FIX**: Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
     const newUser = new User({
       email,
-      passwordHash: passwordHash, // Store the hashed password
+      passwordHash: password,
       purpose: "manual",
       role: role || "user",
       farmerDocPath: farmerDoc ? farmerDoc.path : null,
@@ -246,10 +243,8 @@ app.post("/auth/reset-password", async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  // Hash the new password before saving
-  const salt = await bcrypt.genSalt(10);
-  user.passwordHash = await bcrypt.hash(newPassword, salt);
-  
+  user.passwordHash = newPassword;
+
   await user.save();
   res.json({ message: "Password reset successful" });
 });
@@ -434,6 +429,7 @@ app.use("/food", auth, foodRoutes);
 app.use("/wastage", auth, wastageRoutes);
 app.use("/notifications", auth, notificationRoutes);
 app.use("/reports", auth, reportRoutes);
+app.use("/donations", auth, donationRoutes);
 // app.use("/ai", auth, aiRoutes); // This is already defined at the top without auth, decide if it needs it
 
 // === Cron Job ===

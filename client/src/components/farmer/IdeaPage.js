@@ -13,7 +13,7 @@ function IdeaPage() {
       setLoading(true);
       setIdeas("");
 
-      const res = await axios.post("http://localhost:5000/api/ai/farming-ideas", {
+      const res = await axios.post("http://localhost:5000/ai/farming-ideas", {
         items: foodItems,
       });
 
