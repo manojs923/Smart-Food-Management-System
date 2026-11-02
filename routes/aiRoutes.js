@@ -19,6 +19,7 @@ const storage = multer.diskStorage({
   },
 });
 
+<<<<<<< HEAD
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -27,6 +28,9 @@ const upload = multer({
     callback(null, allowedTypes.includes(file.mimetype));
   },
 });
+=======
+const upload = multer({ storage });
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 /* ----------------------------------------------------------
  🧠 1️⃣ Food Image Analysis (AI vision)
@@ -48,7 +52,11 @@ router.post("/analyze", upload.single("image"), async (req, res) => {
     console.error("❌ AI route error:", error);
     res.status(500).json({
       message: "AI analysis failed",
+<<<<<<< HEAD
       error: error.message || "Food recognition is currently unavailable.",
+=======
+      error: error.message,
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     });
   }
 });
@@ -64,6 +72,7 @@ router.post("/farming-ideas", async (req, res) => {
       return res.status(400).json({ message: "Please provide food items." });
     }
 
+<<<<<<< HEAD
     // 🧠 AI Prompt
     const prompt = `
 You are an expert sustainable farming advisor.
@@ -92,6 +101,67 @@ Keep suggestions short, practical, and easy to understand.
     res.status(200).json({ ideas });
   } catch (error) {
     console.error("❌ AI ideas error:", error.message);
+=======
+    const list = items.split(",").map(i => i.trim().toLowerCase());
+    const suggestions = [];
+
+    /* ---------------------------
+       🍌 Banana-specific ideas
+    ----------------------------*/
+    if (list.some(i => i.includes("banana"))) {
+      suggestions.push("• Banana peels can be soaked in water for 48 hours to make potassium-rich fertilizer.");
+      suggestions.push("• Dried banana peels work as natural pest repellents.");
+    }
+
+    /* ---------------------------
+       🍎 Generic Fruit ideas
+       (apple, mango, orange, etc.)
+       WITHOUT banana-only lines
+    ----------------------------*/
+    if (list.some(i =>
+      ["apple", "orange", "mango", "pineapple", "grape", "fruit", "peel"]
+      .some(f => i.includes(f))
+    )) {
+      suggestions.push("• Fruit waste can be composted to create nutrient-rich fertilizer.");
+      suggestions.push("• Fermented fruit scraps can be used to make natural bio-enzyme for cleaning plants.");
+    }
+
+    /* ---------------------------
+       🍅 Vegetables
+    ----------------------------*/
+    if (list.some(i => ["tomato", "onion", "potato", "cabbage", "veggie"].some(f => i.includes(f)))) {
+      suggestions.push("• Vegetable scraps boost soil microbes when added to compost.");
+      suggestions.push("• Tomato waste can be fermented to create a natural growth booster.");
+    }
+
+    /* ---------------------------
+       🌾 Grains
+    ----------------------------*/
+    if (list.some(i => ["rice", "rice water", "pasta", "wheat"].some(f => i.includes(f)))) {
+      suggestions.push("• Rice water works as a natural fertilizer for leafy plants.");
+      suggestions.push("• Cooked rice can be mixed into compost to increase nitrogen levels.");
+    }
+
+    /* ---------------------------
+       🥛 Dairy
+    ----------------------------*/
+    if (list.some(i => ["milk", "yogurt", "curd"].some(f => i.includes(f)))) {
+      suggestions.push("• Diluted milk acts as an anti-fungal spray for crops.");
+    }
+
+    /* ---------------------------
+       🥬 Generic fallback
+    ----------------------------*/
+    if (suggestions.length === 0) {
+      suggestions.push("• Organic waste can be composted to improve soil health.");
+      suggestions.push("• Fermented waste can be used as natural bio-enzymes.");
+    }
+
+    res.status(200).json({ ideas: suggestions.join("\n") });
+
+  } catch (error) {
+    console.error("❌ Farming Ideas Error:", error.message);
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     res.status(500).json({
       message: "Failed to generate farming ideas",
       error: error.message,

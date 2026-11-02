@@ -2,7 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch, FaFilter, FaHandHoldingHeart } from "react-icons/fa";
+<<<<<<< HEAD
 import "../App.css";
+=======
+import "./FoodList.css";
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 function FoodList() {
   const [foodItems, setFoodItems] = useState([]);

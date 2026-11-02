@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+<<<<<<< HEAD
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -16,12 +17,25 @@ const ChatPage = () => {
   const { farmerId } = useParams();
   const navigate = useNavigate();
 
+=======
+import { jwtDecode } from "jwt-decode";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import socket from "./socket";
+import { FaArrowLeft, FaPaperPlane, FaTrashAlt } from "react-icons/fa";
+import "./ChatPage.css";
+
+const ChatPage = () => {
+  const { recipientId } = useParams();
+  const navigate = useNavigate();
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
   const [farmer, setFarmer] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const chatEndRef = useRef(null);
 
+<<<<<<< HEAD
   // 🧠 Fetch farmer info + chat history
   useEffect(() => {
     const fetchData = async () => {
@@ -38,11 +52,35 @@ const ChatPage = () => {
         setMessages(msgRes.data || []);
       } catch (err) {
         console.error("❌ Error fetching data:", err.response?.data || err.message);
+=======
+  const token = localStorage.getItem("token");
+  const customerId = jwtDecode(token).userId;
+
+  // 🚨 Validate ObjectId (24 hex chars)
+  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(recipientId);
+
+  // 👉 Hooks must run ALWAYS — no return before them!
+  useEffect(() => {
+    if (!isValidObjectId) return; // ❗ Skip execution, but hook still exists
+
+    const load = async () => {
+      try {
+        const f = await axios.get(`http://localhost:5000/farmers/${recipientId}`);
+        setFarmer(f.data);
+
+        const m = await axios.get(
+          `http://localhost:5000/messages/${customerId}/${recipientId}`
+        );
+        setMessages(m.data || []);
+      } catch (err) {
+        console.error("❌ Chat load error:", err);
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
       } finally {
         setLoading(false);
       }
     };
 
+<<<<<<< HEAD
     fetchData();
 
     // ✅ Join a room for real-time updates
@@ -66,10 +104,29 @@ const ChatPage = () => {
   }, [farmerId]);
 
   // 🌀 Auto-scroll
+=======
+    load();
+    socket.emit("joinRoom", customerId);
+
+    socket.off("receiveMessage");
+    socket.on("receiveMessage", (msg) => {
+      if (
+        (msg.senderId === customerId && msg.recipientId === recipientId) ||
+        (msg.senderId === recipientId && msg.recipientId === customerId)
+      ) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    });
+
+    return () => socket.off("receiveMessage");
+  }, [customerId, recipientId, isValidObjectId]);
+
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+<<<<<<< HEAD
   // 📤 Send a message
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -128,19 +185,82 @@ const onEmojiClick = (emojiData, event) => {
               <div className="flex flex-col leading-tight">
                 <h3 className="text-md font-semibold">{farmer?.name || "Farmer"}</h3>
                 <p className="text-xs text-gray-200">{farmer?.email || "Loading..."}</p>
+=======
+  // SEND
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !isValidObjectId) return;
+
+    const payload = {
+      text: newMessage,
+      senderId: customerId,
+      recipientId,
+    };
+
+    setNewMessage("");
+
+    try {
+      await axios.post("http://localhost:5000/messages", payload);
+    } catch (err) {
+      console.error("❌ Send error:", err);
+    }
+  };
+
+  // CLEAR CHAT
+  const clearChat = async () => {
+    if (!window.confirm("Clear entire chat?")) return;
+    if (!isValidObjectId) return;
+
+    await axios.delete(
+      `http://localhost:5000/messages/clear/${customerId}/${recipientId}`
+    );
+    setMessages([]);
+  };
+
+  // 👉 NOW we safely validate AFTER hooks
+  if (!isValidObjectId) {
+    return (
+      <div style={{ padding: "20px", fontSize: "18px", color: "red" }}>
+        Invalid chat selected.
+        <br />
+        <button onClick={() => navigate(-1)}>Go Back</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chat-page-wrapper">
+      <div className="chat-container">
+        <div className="chat-header">
+          <div className="header-left-content">
+          <button onClick={() => navigate("/farmer/dashboard")} className="header-button back-button">
+  <FaArrowLeft />
+</button>
+
+
+            <div className="header-user-info">
+              <div className="header-avatar">{farmer?.name?.[0] || "F"}</div>
+              <div>
+                <h3>{farmer?.name}</h3>
+                <p>{farmer?.email}</p>
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
               </div>
             </div>
           </div>
 
+<<<<<<< HEAD
           <button
             onClick={clearChat}
             title="Clear Chat"
             className="text-white hover:text-gray-200 transition"
           >
+=======
+          <button onClick={clearChat} className="header-button clear-chat-button">
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
             <FaTrashAlt />
           </button>
         </div>
 
+<<<<<<< HEAD
         {/* ===== Messages Section ===== */}
         <div className="flex-1 bg-[#f5f7fb] px-4 py-4 overflow-y-auto">
           {loading ? (
@@ -194,12 +314,28 @@ const onEmojiClick = (emojiData, event) => {
                       minute: "2-digit",
                     })}
                   </div>
+=======
+        <div className="message-list-container">
+          {loading ? (
+            <p>Loading chat...</p>
+          ) : (
+            messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`message-row ${
+                  msg.senderId === customerId ? "customer-message" : "farmer-message"
+                }`}
+              >
+                <div className="message-bubble">
+                  <span>{msg.text}</span>
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
                 </div>
               </div>
             ))
           )}
           <div ref={chatEndRef} />
         </div>
+<<<<<<< HEAD
       {/* ===== Input Section ===== */}
 <div className="relative flex items-center bg-white border-t border-gray-200 p-3">
   {/* Text Input */}
@@ -220,6 +356,22 @@ const onEmojiClick = (emojiData, event) => {
     <FaPaperPlane size={15} />
   </button>
 </div>
+=======
+
+        <div className="chat-input-area-wrapper">
+          <div className="chat-input-controls">
+            <input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type message..."
+              className="chat-input-field"
+            />
+            <button onClick={sendMessage} className="control-button send-button">
+              <FaPaperPlane />
+            </button>
+          </div>
+        </div>
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
       </div>
     </div>
   );

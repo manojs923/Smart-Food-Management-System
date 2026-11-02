@@ -1,4 +1,5 @@
 import express from "express";
+<<<<<<< HEAD
 import DonationRequest from "../models/donationRequest.js";
 
 const router = express.Router();
@@ -53,6 +54,30 @@ router.post("/requests", async (req, res) => {
   } catch (error) {
     console.error("Donation request error:", error);
     res.status(500).json({ message: "Failed to create pickup request" });
+=======
+import Donation from "../models/Donation.js";
+
+const router = express.Router();
+
+// Add Donation Record
+router.post("/add", async (req, res) => {
+  try {
+    const { farmerId, foodId, foodName } = req.body;
+
+    const donation = new Donation({
+      farmerId,
+      foodId,
+      foodName,
+      donatedAt: new Date()
+    });
+
+    await donation.save();
+
+    res.status(201).json({ message: "Donation saved", donation });
+  } catch (err) {
+    console.error("Donation API Error:", err);
+    res.status(500).json({ message: "Failed to save donation" });
+>>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
   }
 });
 
