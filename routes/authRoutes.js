@@ -46,7 +46,6 @@ router.post("/register", async (req, res) => {
 });
 
 // Login
-<<<<<<< HEAD
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -70,31 +69,6 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Error logging in", error: err.message });
   }
 });
-=======
-// router.post("/login", async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(400).json({ message: "Invalid email or password" });
-//     }
-
-//     const isPasswordValid = await user.comparePassword(password);
-//     if (!isPasswordValid) {
-//       return res.status(400).json({ message: "Invalid email or password" });
-//     }
-
-//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-//       expiresIn: "1h",
-//     });
-
-//     res.status(200).json({ message: "Login successful", token });
-//   } catch (err) {
-//     res.status(500).json({ message: "Error logging in", error: err.message });
-//   }
-// });
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 // Request OTP
 router.post("/request-otp", async (req, res) => {

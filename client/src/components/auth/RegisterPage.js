@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../../contexts/AuthContext";
 import "../../App.css";
 
 const RegisterPage = () => {
@@ -12,6 +14,7 @@ const RegisterPage = () => {
   const [farmerDocs, setFarmerDocs] = useState(null);
 
   const navigate = useNavigate();
+  const { loginWithGoogle } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -31,13 +34,7 @@ const RegisterPage = () => {
         formData.append("farmerDocs", farmerDocs);
       }
 
-<<<<<<< HEAD
       await axios.post("http://localhost:5000/auth/register", formData);
-=======
-      await axios.post("http://localhost:5000/auth/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
       alert("Registration successful! You can now log in.");
       navigate("/");
@@ -58,10 +55,6 @@ const RegisterPage = () => {
         alert("Registration failed. Please try again.");
       }
     }
-  };
-
-  const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:5000/auth/google";
   };
 
   return (
@@ -229,24 +222,23 @@ const RegisterPage = () => {
             </span>
           </div>
 
-          <button
-            onClick={handleGoogleAuth}
-            style={{
-              backgroundColor: "white",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              padding: "10px 20px",
-              cursor: "pointer",
-              fontWeight: "500",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              marginTop: "0.5rem",
+          <GoogleLogin
+            onSuccess={async ({ credential }) => {
+              if (!credential) {
+                alert("Google sign-in did not return a credential.");
+                return;
+              }
+
+              try {
+                await loginWithGoogle(credential);
+                navigate("/home");
+              } catch (error) {
+                console.error("Google sign-in failed:", error);
+                alert("Google sign-in failed. Please try again.");
+              }
             }}
-          >
-            Continue with Google
-          </button>
+            onError={() => alert("Google sign-in failed. Please try again.")}
+          />
         </div>
       )}
 

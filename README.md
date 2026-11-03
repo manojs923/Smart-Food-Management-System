@@ -71,6 +71,17 @@ Open a terminal in the `Project_GreenNest` directory.
 
    Open the app at [http://localhost:3000](http://localhost:3000). The API runs at [http://localhost:5000](http://localhost:5000).
 
+## Deploy on Render
+
+Deploy the API and React app as separate Render services:
+
+1. Create a **Web Service** with the repository root as its root directory. Use `npm ci` as the build command and `npm start` as the start command.
+2. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, `GEMINI_API_KEY`, and `CLIENT_ORIGIN` (the deployed frontend URL). Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
+3. Create a **Static Site** with `client` as its root directory. Use `npm ci && npm run build` as the build command and `build` as the publish directory.
+4. Set `REACT_APP_API_URL` on the static site to the backend's public URL, then redeploy it so the URL is included in the frontend build.
+
+Use a hosted MongoDB connection string for `MONGO_URI`. Do not commit `.env` files or put server secrets in the frontend environment.
+
 ## Useful commands
 
 Run these from the project root unless noted:

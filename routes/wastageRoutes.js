@@ -98,10 +98,7 @@ router.get("/chart", authenticate, async (req, res) => {
 
   try {
     const parsedDate = new Date(date);
-<<<<<<< HEAD
     const currentDate = new Date();
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     let startDate, endDate;
 
     if (mode === "day") {
@@ -120,7 +117,6 @@ router.get("/chart", authenticate, async (req, res) => {
       return res.status(400).json({ error: "Invalid mode parameter" });
     }
 
-<<<<<<< HEAD
     console.log(`🔍 Looking for wasted items between ${startDate} and ${endDate}`);
 
     // ✅ Only include ACTIVE items, exclude deleted ones completely
@@ -141,30 +137,11 @@ router.get("/chart", authenticate, async (req, res) => {
       { $set: { clearedFromGraph: true } }
     );
 
-=======
-    console.log(`🔍 Looking for wasted/expired items between ${startDate} and ${endDate}`);
-
-    const activeFoodItems = await FoodItem.find({
-      userId: req.user.userId,
-      $or: [
-        // ⭐ manually wasted
-        { isWasted: true, wastedAt: { $gte: startDate, $lte: endDate } },
-
-        // ⭐ expired items => expiry <= endDate
-        { expiryDate: { $lte: endDate } }
-      ],
-    });
-
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     const categoryMap = {};
     activeFoodItems.forEach((item) => {
       categoryMap[item.category] = (categoryMap[item.category] || 0) + 1;
     });
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     const categories = Object.keys(categoryMap).map((k) => ({
       name: k,
       value: categoryMap[k],
@@ -177,10 +154,7 @@ router.get("/chart", authenticate, async (req, res) => {
       return res.json({ categories: [], total: 0 });
     }
 
-<<<<<<< HEAD
     console.log(`✅ Chart data ready: ${total} items`);
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
     res.json({ categories, total });
   } catch (err) {
     console.error("❌ Error fetching wastage chart data:", err);
@@ -188,10 +162,7 @@ router.get("/chart", authenticate, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 // ✅ Reset wastage data
 router.post("/reset", authenticate, async (req, res) => {
   const { mode, date } = req.body;

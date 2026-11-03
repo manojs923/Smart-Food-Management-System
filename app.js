@@ -3,11 +3,6 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import jwt from "jsonwebtoken";
-<<<<<<< HEAD
-import bcrypt from "bcrypt";
-=======
-import bcrypt from "bcryptjs";
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 import session from "express-session";
 import cron from "node-cron";
 import fetch from "node-fetch";
@@ -39,10 +34,7 @@ import wastageRoutes from "./routes/wastageRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
-<<<<<<< HEAD
 import donationRoutes from "./routes/donationRoutes.js";
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 // === Google Auth Client ===
 import { OAuth2Client } from "google-auth-library";
@@ -64,7 +56,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // === Middleware ===
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/ai", aiRoutes);
@@ -106,19 +98,9 @@ app.post("/auth/register", upload.single("farmerDocs"), async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-<<<<<<< HEAD
     const newUser = new User({
       email,
       passwordHash: password,
-=======
-    // ✅ **SECURITY FIX**: Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    const newUser = new User({
-      email,
-      passwordHash: passwordHash, // Store the hashed password
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
       purpose: "manual",
       role: role || "user",
       farmerDocPath: farmerDoc ? farmerDoc.path : null,
@@ -132,7 +114,6 @@ app.post("/auth/register", upload.single("farmerDocs"), async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 // ✅ Manual Login Route (ADDED BACK)
 app.post("/auth/login", async (req, res) => {
   try {
@@ -146,7 +127,7 @@ app.post("/auth/login", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
 
     // 🔐 Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch)
       return res.status(401).json({ message: "Invalid password" });
 
@@ -169,8 +150,6 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 // ✅ Google Login (ADDED BACK)
 app.post("/auth/google", async (req, res) => {
   try {
@@ -263,26 +242,25 @@ app.post("/auth/reset-password", async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) return res.status(404).json({ message: "User not found" });
 
-<<<<<<< HEAD
   user.passwordHash = newPassword;
 
-=======
-  // Hash the new password before saving
-  const salt = await bcrypt.genSalt(10);
-  user.passwordHash = await bcrypt.hash(newPassword, salt);
-  
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
   await user.save();
   res.json({ message: "Password reset successful" });
 });
 
-<<<<<<< HEAD
 // ================= NEW CHAT LOGIC (YOURS IS GOOD) =================
 
 // ✅ Get chat history between two specific users
 app.get("/messages/:userId1/:userId2", async (req, res) => {
   try {
     const { userId1, userId2 } = req.params;
+    if (
+      !mongoose.Types.ObjectId.isValid(userId1) ||
+      !mongoose.Types.ObjectId.isValid(userId2)
+    ) {
+      return res.status(400).json({ message: "Invalid IDs" });
+    }
+
     const messages = await Message.find({
       $or: [
         { senderId: userId1, recipientId: userId2 },
@@ -296,8 +274,6 @@ app.get("/messages/:userId1/:userId2", async (req, res) => {
   }
 });
 
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 // ✅ Get all conversations for a specific user (for FarmerChatList)
 app.get("/messages/conversations/:userId", async (req, res) => {
   try {
@@ -330,49 +306,21 @@ app.get("/messages/conversations/:userId", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
-// ================= NEW CHAT LOGIC (YOURS IS GOOD) =================
-
-// ✅ Get chat history between two specific users
-// Get chat between customer and farmer
-app.get("/messages/:customerId/:farmerId", async (req, res) => {
+app.delete("/messages/clear/:userId1/:userId2", async (req, res) => {
   try {
-    const { customerId, farmerId } = req.params;
-
-    // ✅ Backend protection: Stop invalid ObjectIds
+    const { userId1, userId2 } = req.params;
     if (
-      !mongoose.Types.ObjectId.isValid(customerId) ||
-      !mongoose.Types.ObjectId.isValid(farmerId)
+      !mongoose.Types.ObjectId.isValid(userId1) ||
+      !mongoose.Types.ObjectId.isValid(userId2)
     ) {
       return res.status(400).json({ message: "Invalid IDs" });
     }
 
-    const messages = await Message.find({
-      $or: [
-        { senderId: customerId, recipientId: farmerId },
-        { senderId: farmerId, recipientId: customerId }
-      ]
-    }).sort({ timestamp: 1 });
-
-    res.json(messages);
-  } catch (err) {
-    console.error("❌ Error fetching chat:", err);
-    res.status(500).json({ message: "Server error fetching chat" });
-  }
-});
-
-
-// Clear entire chat between a customer & farmer
-app.delete("/messages/clear/:customerId/:farmerId", async (req, res) => {
-  try {
-    const { customerId, farmerId } = req.params;
-
     await Message.deleteMany({
       $or: [
-        { senderId: customerId, recipientId: farmerId },
-        { senderId: farmerId, recipientId: customerId }
-      ]
+        { senderId: userId1, recipientId: userId2 },
+        { senderId: userId2, recipientId: userId1 },
+      ],
     });
 
     res.json({ message: "Chat cleared successfully" });
@@ -385,7 +333,6 @@ app.delete("/messages/clear/:customerId/:farmerId", async (req, res) => {
 
 
 
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 // ✅ Get basic info for a user (for ChatPage header)
 app.get("/user/info/:userId", async (req, res) => {
   try {
@@ -515,10 +462,7 @@ app.use("/food", auth, foodRoutes);
 app.use("/wastage", auth, wastageRoutes);
 app.use("/notifications", auth, notificationRoutes);
 app.use("/reports", auth, reportRoutes);
-<<<<<<< HEAD
 app.use("/donations", auth, donationRoutes);
-=======
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 // app.use("/ai", auth, aiRoutes); // This is already defined at the top without auth, decide if it needs it
 
 // === Cron Job ===
@@ -530,50 +474,13 @@ cron.schedule("0 8 * * *", async () => {
 // ================= SOCKET.IO INTEGRATION (UPDATED) =================
 const server = http.createServer(app);
 
-<<<<<<< HEAD
-=======
 // ========== SOCKET.IO FIXED SINGLE INSTANCE ==========
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
     methods: ["GET", "POST"],
-<<<<<<< HEAD
-  },
-=======
     credentials: true,
   },
-  transports: ["websocket", "polling"],
-});
-
-io.on("connection", (socket) => {
-  console.log("🟢 Client connected:", socket.id);
-
-  socket.on("joinRoom", (userId) => {
-    socket.join(userId);
-    console.log(`📦 User ${socket.id} joined room: ${userId}`);
-  });
-
-  socket.on("sendMessage", async (msg) => {
-    try {
-      const savedMsg = await new Message({
-        text: msg.text,
-        senderId: msg.senderId,
-        recipientId: msg.recipientId,
-        timestamp: msg.timestamp,
-      }).save();
-
-      io.to(msg.recipientId).emit("receiveMessage", savedMsg);
-      io.to(msg.senderId).emit("receiveMessage", savedMsg);
-    } catch (err) {
-      console.error("❌ Error saving message:", err);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected:", socket.id);
-  });
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 });
 
 // ✅ Fetch farmer profile
@@ -625,47 +532,6 @@ app.get("/auth/me", async (req, res) => {
     res.status(401).json({ message: "Invalid or expired token" });
   }
 });
-
-<<<<<<< HEAD
-=======
-app.post("/auth/login", async (req, res) => {
-  try {
-    console.log("LOGIN REQUEST BODY:", req.body);
-
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    console.log("LOGIN USER FOUND:", user);
-
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    console.log("PASSWORD IN DB:", user.passwordHash);
-    console.log("PASSWORD ENTERED:", password);
-
-    // ⭐ FIXED ⭐
-    const match = await user.comparePassword(password);
-
-    console.log("PASSWORD MATCH:", match);
-
-    if (!match)
-      return res.status(401).json({ message: "Invalid password" });
-
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "7d" }
-    );
-
-    console.log("LOGIN SUCCESS:", token);
-
-    res.json({ token, role: user.role, email: user.email });
-
-  } catch (err) {
-    console.log("LOGIN ERROR:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
 
 // =======================================
 // POST MESSAGE (GENERAL) → /messages
@@ -722,7 +588,6 @@ app.post("/api/messages", async (req, res) => {
   }
 });
 
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 io.on("connection", (socket) => {
   console.log("🟢 Client connected:", socket.id);
@@ -734,7 +599,6 @@ io.on("connection", (socket) => {
   });
 
   // ✅ Handle new message
-<<<<<<< HEAD
   socket.on("sendMessage", async (msg) => {
     try {
       // 1. Save message in DB
@@ -749,29 +613,6 @@ io.on("connection", (socket) => {
       console.error("❌ Error saving/sending message:", err);
     }
   });
-=======
-socket.on("sendMessage", async (msg) => {
-  try {
-    const savedMsg = await new Message({
-      text: msg.text,
-      senderId: msg.senderId,
-      recipientId: msg.recipientId,
-      timestamp: msg.timestamp
-    }).save();
-
-    // Send to receiver
-    io.to(msg.recipientId).emit("receiveMessage", savedMsg);
-
-    // Send to sender so THEIR UI updates instantly
-    io.to(msg.senderId).emit("receiveMessage", savedMsg);
-
-    console.log("💬 Message sent to:", msg.senderId, "→", msg.recipientId);
-  } catch (err) {
-    console.error("❌ Error saving/sending message:", err);
-  }
-});
-
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected:", socket.id);

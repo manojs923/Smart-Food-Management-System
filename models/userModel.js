@@ -79,23 +79,12 @@ const userSchema = new mongoose.Schema({
 });
 
 // ✅ Automatically hash password before saving
-<<<<<<< HEAD
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (this.isModified("passwordHash") && this.passwordHash) {
     const salt = await bcrypt.genSalt(10);
     this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
   }
-  next();
 });
-=======
-// userSchema.pre("save", async function (next) {
-//   if (this.isModified("passwordHash") && this.passwordHash) {
-//     const salt = await bcrypt.genSalt(10);
-//     this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-//   }
-//   next();
-// });
->>>>>>> 156b6162bb2f37c9290d2a66e6e53785e18771b7
 
 // ✅ Compare plain text password with hashed password
 userSchema.methods.comparePassword = async function (plainPassword) {
