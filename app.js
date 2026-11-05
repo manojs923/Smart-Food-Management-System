@@ -42,6 +42,21 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const frontendBuildPath = path.join(__dirname, "client", "build");
+const frontendIndexPath = path.join(frontendBuildPath, "index.html");
+const apiRoutePrefixes = [
+  "/ai",
+  "/api",
+  "/auth",
+  "/donations",
+  "/farmers",
+  "/food",
+  "/messages",
+  "/notifications",
+  "/reports",
+  "/user",
+  "/wastage",
+];
 
 // === File Upload Setup ===
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
@@ -59,7 +74,7 @@ const upload = multer({ storage });
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/", (req, res) => {
+app.get("/api/status", (req, res) => {
   res.json({ message: "GreenNest API is running" });
 });
 app.use("/ai", aiRoutes);
@@ -619,6 +634,23 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected:", socket.id);
+  });
+});
+
+app.use(express.static(frontendBuildPath));
+
+app.get("*", (req, res, next) => {
+  if (
+    apiRoutePrefixes.some(
+      (prefix) => req.path === prefix || req.path.startsWith(`${prefix}/`)
+    ) ||
+    !fs.existsSync(frontendIndexPath)
+  ) {
+    return next();
+  }
+
+  res.sendFile(frontendIndexPath, (err) => {
+    if (err) next(err);
   });
 });
 
