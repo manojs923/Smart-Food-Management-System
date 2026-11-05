@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch, FaFilter, FaHandHoldingHeart } from "react-icons/fa";
@@ -51,7 +51,31 @@ function FoodList() {
     }
   ];
 
-  const fetchFoodItems = async () => {
+  const applyFilters = useCallback((items, search, category, status) => {
+    let result = [...items];
+
+    if (search) {
+      search = search.toLowerCase();
+      result = result.filter(item =>
+        item.name.toLowerCase().includes(search) ||
+        item.category.toLowerCase().includes(search)
+      );
+    }
+
+    if (category !== "all") {
+      result = result.filter(item =>
+        item.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    if (status !== "all") {
+      result = result.filter(item => item.status === status);
+    }
+
+    setFilteredItems(result);
+  }, []);
+
+  const fetchFoodItems = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get("/food", {
@@ -81,7 +105,6 @@ function FoodList() {
       });
 
       setFoodItems(updatedItems);
-      applyFilters(updatedItems, searchTerm, filterCategory, filterStatus);
       
       // Check if we need to highlight an item from notification
       if (location.state?.highlightItemId) {
@@ -92,7 +115,7 @@ function FoodList() {
     } catch (err) {
       console.error("Error fetching food items:", err);
     }
-  };
+  }, [location.state]);
 
   useEffect(() => {
     fetchFoodItems();
@@ -100,40 +123,12 @@ function FoodList() {
     if (location.state?.added) {
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [fetchFoodItems, location.state]);
   
   // Apply filters when search or filter criteria change
   useEffect(() => {
     applyFilters(foodItems, searchTerm, filterCategory, filterStatus);
-  }, [searchTerm, filterCategory, filterStatus]);
-  
-  // Function to apply filters and search
-  const applyFilters = (items, search, category, status) => {
-    let result = [...items];
-    
-    // Apply search filter
-    if (search) {
-      search = search.toLowerCase();
-      result = result.filter(item => 
-        item.name.toLowerCase().includes(search) || 
-        item.category.toLowerCase().includes(search)
-      );
-    }
-    
-    // Apply category filter
-    if (category !== "all") {
-      result = result.filter(item => 
-        item.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-    
-    // Apply status filter
-    if (status !== "all") {
-      result = result.filter(item => item.status === status);
-    }
-    
-    setFilteredItems(result);
-  };
+  }, [foodItems, searchTerm, filterCategory, filterStatus, applyFilters]);
   
   // Scroll to highlighted item
   useEffect(() => {

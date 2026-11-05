@@ -4,7 +4,6 @@ import axios from "axios";
 import ReactECharts from "echarts-for-react";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-import { FaBell, FaUser, FaSearch } from "react-icons/fa";
 
 const WastageGraph = () => {
   const [chartData, setChartData] = useState([]);
@@ -63,7 +62,7 @@ const WastageGraph = () => {
         if (summaryRes.data) {
           console.log("Summary data received:", summaryRes.data);
           // ✅ Ensure summary only includes active (non-deleted) items
-          const { totalFood = 0, wastedFood = 0, remainingFood = 0 } = summaryRes.data;
+          const { totalFood = 0, wastedFood = 0 } = summaryRes.data;
           setSummaryStats({
             totalFood,
             wastedFood,
@@ -231,26 +230,6 @@ const WastageGraph = () => {
     return false;
   };
 
-  // Get color based on category
-  const getColorForCategory = (category) => {
-    const colorMap = {
-      'Fruits': '#5470c6',
-      'Vegetables': '#91cc75',
-      'Dairy Products': '#fac858',
-      'Meat & Poultry': '#ee6666',
-      'Seafood': '#73c0de',
-      'Grains & Cereals': '#3ba272',
-      'Beverages': '#9a60b4',
-      'Snacks': '#ea7ccc',
-      'Frozen Foods': '#48b3bd',
-      'Canned & Jarred Foods': '#f4e001',
-      'Condiments & Spices': '#ff9f7f',
-      'Baking & Cooking Ingredients': '#c23531',
-      'Ready-to-Eat / Prepared Foods': '#2f4554'
-    };
-    return colorMap[category] || '#999';
-  };
-
   // Get options for the wastage pie chart
   const getChartOption = () => {
     // Determine if we're in dark mode
@@ -282,11 +261,11 @@ const WastageGraph = () => {
       tooltip: {
         trigger: "item",
         formatter: "{b}: {c} ({d}%)",
-        textStyle: { fontSize: 14 },
         backgroundColor: isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)',
         borderColor: isDarkMode ? '#555' : '#ddd',
         textStyle: {
-          color: isDarkMode ? '#fff' : '#333'
+          color: isDarkMode ? '#fff' : '#333',
+          fontSize: 14,
         },
         borderWidth: 1,
       },

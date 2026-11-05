@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { FaLightbulb, FaSeedling, FaSync } from "react-icons/fa";
 import "./IdeaPage.css";
 
 function IdeaPage() {

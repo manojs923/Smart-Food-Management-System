@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  FaUser,
-  FaSeedling,
-  FaLeaf,
-  FaClipboardList,
-  FaGlobeAsia,
-  FaEdit,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
 
 import "./FarmerSetup.css";
 
