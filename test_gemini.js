@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import fetch from "node-fetch";
+import { generateGeminiContent } from "./utils/geminiClient.js";
 
 dotenv.config();
 
@@ -13,28 +13,12 @@ if (!apiKey) {
 
 async function testGemini() {
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + apiKey,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: "Hello" }] }],
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const text = await response.text();
-      console.log("❌ API Error:", response.status, text);
-    } else {
-      const data = await response.json();
-      console.log("✅ API Success:", data?.candidates?.[0]?.content?.parts?.[0]?.text);
-    }
+    const data = await generateGeminiContent({
+      contents: [{ parts: [{ text: "Hello" }] }],
+    });
+    console.log("✅ API Success:", data?.candidates?.[0]?.content?.parts?.[0]?.text);
   } catch (err) {
-    console.log("❌ Fetch Error:", err);
+    console.error("❌ Gemini test failed:", err.message);
   }
 }
 

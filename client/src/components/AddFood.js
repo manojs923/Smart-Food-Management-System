@@ -48,6 +48,7 @@ function AddFood() {
     setImage(URL.createObjectURL(file));
     setFoodData(null);
     setShowConfetti(false);
+    setCustomBotMessage("");
 
     // State 2: Mascot excitement
     setBotState("upload");
@@ -96,12 +97,7 @@ function AddFood() {
       console.error("❌ Error scanning image:", err);
       playSfx("error");
       setBotState("idle");
-      setCustomBotMessage("Oops! I couldn't recognize this food. Please try another photo!");
-      alert(
-        err.response?.data?.error ||
-          err.response?.data?.message ||
-          "Failed to analyze image. Please try again."
-      );
+      setCustomBotMessage("The AI assistant is busy right now. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -199,7 +195,7 @@ function AddFood() {
     } catch (err) {
       console.error("❌ Error saving food:", err);
       playSfx("error");
-      alert("Error saving food: " + (err.response?.data?.message || err.message));
+      setCustomBotMessage("Unable to save food right now. Please try again.");
     } finally {
       setSaving(false);
     }

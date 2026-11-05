@@ -1,9 +1,6 @@
 // utils/foodAI.js
 import fs from "fs";
-import fetch from "node-fetch";
-
-const GEMINI_MAX_ATTEMPTS = 3;
-const GEMINI_RETRY_DELAY_MS = 2000;
+import { generateGeminiContent } from "./geminiClient.js";
 
 /**
  * analyzeFoodImage(imagePath)
@@ -16,11 +13,6 @@ export async function analyzeFoodImage(imagePath) {
     }
 
     const imageData = fs.readFileSync(imagePath, { encoding: "base64" });
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
-
     const mimeType = getMimeType(imagePath);
     const prompt = `You are a food freshness inspector. Look at this food image and return ONLY valid JSON (no markdown, no extra text) with these exact keys:
 {
@@ -43,65 +35,21 @@ Base freshness_status on freshness_score: 80-100=Fresh, 50-79=Use Soon, 20-49=Do
 - Do not include markdown fences or extra text.`;
 
     fs.appendFileSync("debug_gemini.txt", `\\n[${new Date().toISOString()}] Sending request to Gemini...\\n`);
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "x-goog-api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              { inline_data: { mime_type: mimeType, data: imageData } },
-            ],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.2,
+    const data = await generateGeminiContent({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: imageData } },
+          ],
         },
-      }),
-    };
-
-    let response;
-    for (let attempt = 1; attempt <= GEMINI_MAX_ATTEMPTS; attempt += 1) {
-      response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
-        requestOptions
-      );
-
-      if (response.status !== 503 || attempt === GEMINI_MAX_ATTEMPTS) {
-        break;
-      }
-
-      console.warn(
-        `[Gemini] Service unavailable (503). Retrying in ${GEMINI_RETRY_DELAY_MS / 1000}s ` +
-          `(attempt ${attempt + 1}/${GEMINI_MAX_ATTEMPTS}).`
-      );
-      await new Promise((resolve) => setTimeout(resolve, GEMINI_RETRY_DELAY_MS));
-    }
-
-    if (!response.ok) {
-      const text = await response.text();
-      let availableModels = "";
-      if (response.status === 404) {
-        try {
-          const modelsRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + apiKey);
-          const modelsData = await modelsRes.json();
-          if (modelsData.models) {
-             availableModels = "\\n\\nAvailable models for your key: " + modelsData.models.map(m => m.name.replace("models/", "")).join(", ");
-          }
-        } catch(e) {}
-      }
-      throw new Error(`Gemini API Error: ${response.status} - ${text}${availableModels}`);
-    }
-
-    const data = await response.json();
+      ],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.2,
+      },
+    });
     let responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    fs.appendFileSync("debug_gemini.txt", `\\n[${new Date().toISOString()}] Response text: ${responseText}\\n`);
 
     if (!responseText) {
       throw new Error("Gemini returned no analysis");

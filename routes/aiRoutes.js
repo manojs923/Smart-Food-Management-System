@@ -3,8 +3,10 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { analyzeFoodImage } from "../utils/foodAI.js";
+import { GeminiApiError } from "../utils/geminiClient.js";
 
 const router = express.Router();
+const AI_BUSY_MESSAGE = "The AI assistant is busy right now. Please try again in a moment.";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -36,10 +38,10 @@ router.post("/analyze", upload.single("image"), async (req, res) => {
     res.status(200).json({ message: "Food analysis successful", data: analysis });
   } catch (error) {
     console.error("AI route error:", error);
-    res.status(500).json({
-      message: "AI analysis failed",
-      error: error.message || "Food recognition is currently unavailable.",
-    });
+    const status = error instanceof GeminiApiError
+      ? ([429, 500, 503].includes(error.status) ? 503 : 502)
+      : 500;
+    res.status(status).json({ message: AI_BUSY_MESSAGE });
   }
 });
 

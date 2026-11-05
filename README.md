@@ -52,6 +52,7 @@ Open a terminal in the `Project_GreenNest` directory.
    JWT_SECRET=replace_with_a_long_random_secret
    SESSION_SECRET=replace_with_another_long_random_secret
    GEMINI_API_KEY=your_gemini_api_key
+   GEMINI_MODEL=gemini-3.5-flash-lite
 
    # Optional: Google sign-in
    GOOGLE_CLIENT_ID=your_google_oauth_client_id
@@ -78,7 +79,7 @@ Deploy the backend and React app together as one Render **Web Service**:
 1. Use the repository root as the service's root directory.
 2. Set the build command to `npm ci && npm --prefix client ci && npm --prefix client run build`.
 3. Set the start command to `npm start`.
-4. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, and `GEMINI_API_KEY`. Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
+4. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, `GEMINI_API_KEY`, and `GEMINI_MODEL=gemini-3.5-flash-lite`. Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
 
 Express serves the compiled React app from `client/build`, including direct navigation and refreshes on frontend routes. The frontend uses the same service origin for API requests in production. `CLIENT_ORIGIN` can be set to the service URL if cross-origin requests are needed.
 
@@ -132,6 +133,6 @@ Project_GreenNest/
 ## Notes
 
 - The frontend development server proxies API requests to `http://localhost:5000`.
-- Food-photo analysis requires `GEMINI_API_KEY`.
-- Food-photo analysis automatically retries Gemini `503 UNAVAILABLE` responses up to three total attempts, waiting two seconds between attempts.
+- Food-photo analysis requires `GEMINI_API_KEY`; `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite`.
+- Gemini requests retry `429`, `500`, and `503` responses up to four times with exponential backoff and jitter, then try `gemini-3.5-flash-lite` and `gemini-3.8-flash` in order.
 - Keep `.env` and all API credentials private. Do not commit secrets to source control.
