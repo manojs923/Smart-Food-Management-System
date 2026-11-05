@@ -85,6 +85,18 @@ Express serves the compiled React app from `client/build`, including direct navi
 
 Use a hosted MongoDB connection string for `MONGO_URI`. Do not commit `.env` files or put server secrets in the frontend environment.
 
+## Jenkins CI/CD (hands-on)
+
+The root `Jenkinsfile` installs dependencies, runs the Gemini helper tests and backend syntax checks, builds the React app, and triggers a Render deploy only when the `main` branch passes all checks. Jenkins agents need Node.js 18 or later, npm, and `curl` (on Windows, `curl.exe`).
+
+1. In Render, open your Web Service's **Settings** and create a **Deploy Hook**. Copy its URL and keep it private.
+2. In Jenkins, create a **Secret text** credential with ID `render-deploy-hook` and use the Deploy Hook URL as its secret value. Never put this URL in the repository or a Jenkinsfile.
+3. Create a Jenkins **Multibranch Pipeline** job for this GitHub repository. Configure GitHub credentials if the repository or webhook requires them, then scan the repository so Jenkins discovers the `main` branch and reads this `Jenkinsfile`.
+4. Configure a GitHub webhook pointing to `https://<your-jenkins-host>/github-webhook/` with **Just the push event**. The Jenkins host must be reachable by GitHub. Verify that a push to `main` starts a Jenkins build.
+5. To avoid two deployments for the same push, disable Render's built-in Auto-Deploy after verifying Jenkins successfully triggers the Render hook. Jenkins will deploy only successful `main` builds; other branches run checks but do not deploy.
+
+For a safe first exercise, push a small documentation change to a feature branch and confirm the checks pass without a deploy. Then merge it to `main` and follow the Jenkins build stages and Render service events.
+
 ## Useful commands
 
 Run these from the project root unless noted:
