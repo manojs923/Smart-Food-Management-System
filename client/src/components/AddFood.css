@@ -10,13 +10,19 @@
   --nombot-primary: #16a34a;
   --nombot-primary-hover: #15803d;
   --nombot-primary-text: #ffffff;
-  --nombot-stat-bg: #f1f5f9;
+  --nombot-btn-border: #d1d5db;
+  --nombot-btn-secondary-bg: transparent;
+  --nombot-btn-secondary-hover: #f1f5f9;
+  --nombot-stat-bg: #f8fafc;
   --nombot-stat-border: #e2e8f0;
   --nombot-pill-bg: rgba(241, 245, 249, 0.95);
   --nombot-pill-border: #cbd5e1;
   --nombot-callout-bg: #f0fdf4;
   --nombot-callout-border: #16a34a;
   --nombot-callout-text: #166534;
+  --nombot-dropzone-bg: #f8fafc;
+  --nombot-dropzone-border: #16a34a;
+  --nombot-dropzone-hover-bg: #f0fdf4;
   --nombot-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 }
 
@@ -29,6 +35,9 @@ body.dark {
   --nombot-primary: #22c55e;
   --nombot-primary-hover: #16a34a;
   --nombot-primary-text: #052e16;
+  --nombot-btn-border: #334155;
+  --nombot-btn-secondary-bg: transparent;
+  --nombot-btn-secondary-hover: #1e293b;
   --nombot-stat-bg: #0b1120;
   --nombot-stat-border: #1e293b;
   --nombot-pill-bg: rgba(15, 23, 42, 0.85);
@@ -36,10 +45,148 @@ body.dark {
   --nombot-callout-bg: rgba(6, 78, 59, 0.25);
   --nombot-callout-border: #22c55e;
   --nombot-callout-text: #86efac;
+  --nombot-dropzone-bg: rgba(15, 23, 42, 0.6);
+  --nombot-dropzone-border: #22c55e;
+  --nombot-dropzone-hover-bg: rgba(6, 78, 59, 0.2);
   --nombot-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.3);
 }
 
-/* Page wrapper: centered container, max-width 900px, responsive padding */
+/* ========================================================
+   BASE BUTTON SYSTEM (Consistent 44px height, 8px scale)
+   ======================================================== */
+.nombot-btn {
+  height: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  line-height: 1;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.nombot-btn:hover {
+  transform: translateY(-1px);
+}
+
+.nombot-btn:active {
+  transform: translateY(0);
+}
+
+.nombot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Primary Button Variant (Brand Green) */
+.nombot-btn-primary {
+  background: var(--nombot-primary) !important;
+  color: var(--nombot-primary-text) !important;
+  border-color: var(--nombot-primary) !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+}
+
+.nombot-btn-primary:hover:not(:disabled) {
+  background: var(--nombot-primary-hover) !important;
+  border-color: var(--nombot-primary-hover) !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+}
+
+/* Secondary / Outlined Button Variant */
+.nombot-btn-secondary {
+  background: var(--nombot-btn-secondary-bg) !important;
+  color: var(--nombot-text) !important;
+  border-color: var(--nombot-btn-border) !important;
+}
+
+.nombot-btn-secondary:hover:not(:disabled) {
+  background: var(--nombot-btn-secondary-hover) !important;
+  color: var(--nombot-text) !important;
+}
+
+/* Danger Button Variant */
+.nombot-btn-danger {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.nombot-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #dc2626 !important;
+}
+
+/* Audio Control Button (Same 44px height) */
+.nombot-btn-audio {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--nombot-btn-border);
+  background: var(--nombot-card-bg);
+  color: var(--nombot-text);
+  box-sizing: border-box;
+}
+
+.nombot-btn-audio:hover {
+  background: var(--nombot-btn-secondary-hover);
+}
+
+.nombot-btn-audio.active {
+  background: var(--nombot-primary);
+  color: var(--nombot-primary-text);
+  border-color: var(--nombot-primary);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+}
+
+/* Quick Feed Sample Chip Button (Consistent 40px/44px height) */
+.nombot-chip-btn {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--nombot-btn-border);
+  background: var(--nombot-card-bg);
+  color: var(--nombot-text);
+  box-sizing: border-box;
+}
+
+.nombot-chip-btn:hover {
+  border-color: var(--nombot-primary);
+  background: var(--nombot-btn-secondary-hover);
+  transform: translateY(-1px);
+}
+
+/* ========================================================
+   CONTAINER & HEADER
+   ======================================================== */
 .nombot-page-wrapper {
   width: 100%;
   max-width: 900px;
@@ -65,14 +212,13 @@ body.dark {
   }
 }
 
-/* Header styling */
 .nombot-header {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   gap: 8px;
 }
 
@@ -96,18 +242,6 @@ body.dark {
   content: none !important;
 }
 
-.nombot-badge-tag {
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  background: var(--nombot-primary);
-  color: var(--nombot-primary-text);
-  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
-}
-
 .nombot-subtitle {
   font-size: 0.88rem;
   color: var(--nombot-text-muted);
@@ -121,15 +255,406 @@ body.dark {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 6px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 6px;
 }
 
-/* Legacy support styles to avoid breaking other components */
-.addfood-wrapper {
-  min-height: 90vh;
+/* ========================================================
+   UPLOAD AREA & DROPZONE CARD
+   ======================================================== */
+.nombot-dropzone-card {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 32px 24px;
+  border-radius: 16px;
+  border: 2px dashed var(--nombot-dropzone-border);
+  background: var(--nombot-dropzone-bg);
+  box-shadow: var(--nombot-shadow);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 25px;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+}
+
+.nombot-dropzone-card:hover,
+.nombot-dropzone-card.drag-over {
+  background: var(--nombot-dropzone-hover-bg);
+  border-color: var(--nombot-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.15);
+}
+
+.nombot-dropzone-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--nombot-primary);
+  margin-bottom: 12px;
+}
+
+.nombot-dropzone-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--nombot-text);
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.nombot-dropzone-helper {
+  font-size: 0.85rem;
+  color: var(--nombot-text-muted);
+  margin: 0 0 18px 0;
+  max-width: 400px;
+  line-height: 1.4;
+}
+
+.nombot-dropzone-subtext {
+  font-size: 0.75rem;
+  color: var(--nombot-text-muted);
+  margin-top: 8px;
+}
+
+/* Samples Section */
+.nombot-samples-container {
+  width: 100%;
+  max-width: 560px;
+  margin: 20px auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.nombot-samples-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nombot-text-muted);
+}
+
+.nombot-samples-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ========================================================
+   COMPACT THUMBNAIL PREVIEW CARD
+   ======================================================== */
+.nombot-preview-card {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--nombot-card-bg);
+  border: 1px solid var(--nombot-card-border);
+  border-radius: 16px;
+  box-shadow: var(--nombot-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.nombot-preview-thumb {
+  width: 100%;
+  max-width: 320px;
+  height: 200px;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--nombot-card-border);
+  display: block;
+}
+
+.nombot-preview-filename {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--nombot-text);
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  margin: 0;
+}
+
+.nombot-preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.nombot-preview-actions .nombot-btn {
+  flex: 1;
+}
+
+/* ========================================================
+   SCAN RESULT CARD (Max-width 720px, 16px rounded, 2x2 grid)
+   ======================================================== */
+.nombot-result-card {
+  width: 100%;
+  max-width: 720px;
+  margin: 16px auto 0 auto;
+  box-sizing: border-box;
+  background: var(--nombot-card-bg);
+  border: 1px solid var(--nombot-card-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--nombot-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+@media (max-width: 640px) {
+  .nombot-result-card {
+    padding: 16px;
+  }
+}
+
+.nombot-result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--nombot-card-border);
+}
+
+.nombot-result-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--nombot-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.nombot-result-meta {
+  font-size: 0.82rem;
+  color: var(--nombot-text-muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.nombot-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.nombot-status-fresh {
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+body.dark .nombot-status-fresh {
+  color: #4ade80;
+}
+
+.nombot-status-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+body.dark .nombot-status-warning {
+  color: #fbbf24;
+}
+
+.nombot-status-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+body.dark .nombot-status-danger {
+  color: #f87171;
+}
+
+/* 2x2 Grid of Equal Stat Tiles */
+.nombot-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .nombot-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nombot-stat-tile {
+  background: var(--nombot-stat-bg);
+  border: 1px solid var(--nombot-stat-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;
+}
+
+.nombot-stat-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nombot-text-muted);
+}
+
+.nombot-stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--nombot-text);
+  margin: 4px 0;
+  line-height: 1.2;
+}
+
+.nombot-stat-helper {
+  font-size: 0.75rem;
+  color: var(--nombot-text-muted);
+  line-height: 1.3;
+}
+
+/* Freshness Progress Bar in Tile */
+.nombot-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--nombot-card-border);
+  overflow: hidden;
+  margin: 6px 0 4px 0;
+}
+
+.nombot-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s ease-out;
+}
+
+/* Storage Environment Toggle Group */
+.nombot-storage-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.nombot-section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nombot-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nombot-storage-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.nombot-storage-btn {
+  height: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--nombot-btn-border);
+  background: var(--nombot-card-bg);
+  color: var(--nombot-text);
+  box-sizing: border-box;
+}
+
+.nombot-storage-btn.active {
+  background: var(--nombot-primary);
+  color: var(--nombot-primary-text);
+  border-color: var(--nombot-primary);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+}
+
+.nombot-storage-btn:not(.active):hover {
+  background: var(--nombot-btn-secondary-hover);
+}
+
+/* Inspector Observations Callout */
+.nombot-callout {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--nombot-callout-bg);
+  border-left: 4px solid var(--nombot-callout-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.nombot-callout-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nombot-text);
+  margin-bottom: 4px;
+}
+
+.nombot-callout-content {
+  color: var(--nombot-callout-text);
+  font-weight: 500;
+}
+
+/* Bottom Actions Row */
+.nombot-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--nombot-card-border);
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .nombot-actions-row {
+    flex-direction: column-reverse;
+  }
+  .nombot-actions-row .nombot-btn {
+    width: 100%;
+  }
 }

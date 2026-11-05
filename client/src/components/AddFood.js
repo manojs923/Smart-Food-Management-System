@@ -221,9 +221,7 @@ function AddFood() {
 
       {/* Centered Header: Title, Subtitle, Audio Controls */}
       <div className="nombot-header">
-        <h1 className="nombot-title">
-          <span>🥗</span> Nom-Bot <span className="nombot-badge-tag">Food Guardian</span>
-        </h1>
+        <h1 className="nombot-title">Nom-Bot Food Guardian</h1>
         <p className="nombot-subtitle">
           Interactive Bio-Scan & Food Waste Prevention Companion
         </p>
