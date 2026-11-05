@@ -68,7 +68,7 @@ Base freshness_status on freshness_score: 80-100=Fresh, 50-79=Use Soon, 20-49=Do
     let response;
     for (let attempt = 1; attempt <= GEMINI_MAX_ATTEMPTS; attempt += 1) {
       response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
         requestOptions
       );
 
