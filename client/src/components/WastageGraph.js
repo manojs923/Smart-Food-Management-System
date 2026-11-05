@@ -33,7 +33,7 @@ const WastageGraph = () => {
     try {
       // Fetch wastage data
       const res = await axios.get(
-        `http://localhost:5000/wastage/chart?mode=${mode}&date=${formatted}`,
+        `/wastage/chart?mode=${mode}&date=${formatted}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -54,7 +54,7 @@ const WastageGraph = () => {
       try {
         console.log("Fetching summary stats...");
         const summaryRes = await axios.get(
-          `http://localhost:5000/food/summary?mode=${mode}&date=${formatted}`,
+          `/food/summary?mode=${mode}&date=${formatted}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -118,7 +118,7 @@ const WastageGraph = () => {
         setLoading(true);
 
         const response = await axios.post(
-          `http://localhost:5000/wastage/reset`,
+          `/wastage/reset`,
           { mode, date: date.format("YYYY-MM-DD") },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -156,7 +156,7 @@ const WastageGraph = () => {
           setLoading(true);
 
           const response = await axios.post(
-            `http://localhost:5000/wastage/reset`,
+            `/wastage/reset`,
             { mode: "all", date: date.format("YYYY-MM-DD") },
             { headers: { Authorization: `Bearer ${token}` } }
           );

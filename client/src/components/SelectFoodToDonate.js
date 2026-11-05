@@ -12,7 +12,7 @@ const SelectFoodToDonate = ({ farmerId }) => {
 
   useEffect(() => {
     const loadExpired = async () => {
-      const res = await axios.get("http://localhost:5000/food/expired", {
+      const res = await axios.get("/food/expired", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setExpired(res.data);
@@ -25,7 +25,7 @@ const handleDonateItem = async (item, farmerId) => {
     const token = localStorage.getItem("token");
     const customer = jwtDecode(token);
 
-    await axios.post("http://localhost:5000/messages", {
+    await axios.post("/messages", {
       senderId: customer.userId,
       recipientId: farmerId,
       type: "donation_request",

@@ -53,7 +53,7 @@ function App() {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          await axios.post("http://localhost:5000/api/save-location", {
+          await axios.post("/api/save-location", {
             userId,
             coords: { lat: coords.latitude, lng: coords.longitude },
           });

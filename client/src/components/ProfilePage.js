@@ -31,7 +31,7 @@ const ProfilePage = () => {
         if (!token) return;
 
         // Fetch food summary statistics
-        const statsResponse = await axios.get("http://localhost:5000/food/summary", {
+        const statsResponse = await axios.get("/food/summary", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -46,7 +46,7 @@ const ProfilePage = () => {
         }
         
         // Fetch user profile with badges
-        const profileResponse = await axios.get("http://localhost:5000/user/profile", {
+        const profileResponse = await axios.get("/user/profile", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -57,7 +57,7 @@ const ProfilePage = () => {
         }
         
         // Trigger badge update calculation on the server
-        await axios.post("http://localhost:5000/user/update-badges", {}, {
+        await axios.post("/user/update-badges", {}, {
           headers: {
             Authorization: `Bearer ${token}`
           }

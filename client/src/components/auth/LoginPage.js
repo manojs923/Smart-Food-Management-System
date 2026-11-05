@@ -50,7 +50,7 @@ const LoginPage = () => {
       return;
     }
     try {
-      await axios.post("http://localhost:5000/auth/request-otp", {
+      await axios.post("/auth/request-otp", {
         email: recoveryEmail,
       });
       setOtpSent(true);
@@ -67,7 +67,7 @@ const LoginPage = () => {
     setError("");
     setSuccess("");
     try {
-      await axios.post("http://localhost:5000/auth/reset-password", {
+      await axios.post("/auth/reset-password", {
         email: recoveryEmail,
         otp,
         newPassword,

@@ -24,7 +24,7 @@ function AddFood() {
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/ai/analyze", formData);
+      const res = await axios.post("/ai/analyze", formData);
 
       setFoodData(res.data.data);
     } catch (err) {
@@ -59,7 +59,7 @@ function AddFood() {
 
       console.log("📦 Sending payload to backend:", payload);
 
-      await axios.post("http://localhost:5000/food/add", payload, {
+      await axios.post("/food/add", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

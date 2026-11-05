@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
-          const response = await axios.get("http://localhost:5000/auth/me");
+          const response = await axios.get("/auth/me");
           setUser({
             email: response.data.email,
             role: response.data.role || "user",
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
       // ❗ FIXED: removed JSON.stringify()
       const response = await axios.post(
-        "http://localhost:5000/auth/login",
+        "/auth/login",
         { email, password },
         {
           headers: {
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   // ✅ Google login (after redirect with token)
 const loginWithGoogle = async (googleToken) => {
   try {
-    const response = await axios.post("http://localhost:5000/auth/google", {
+    const response = await axios.post("/auth/google", {
       token: googleToken,
     });
 
@@ -104,7 +104,7 @@ const loginWithGoogle = async (googleToken) => {
   const requestPasswordReset = async (email) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/auth/request-otp",
+        "/auth/request-otp",
         { email }
       );
       return { success: true, message: response.data.message };
@@ -119,7 +119,7 @@ const loginWithGoogle = async (googleToken) => {
   const verifyOtp = async (email, otp) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/auth/verify-otp",
+        "/auth/verify-otp",
         { email, otp }
       );
       return { success: true, message: response.data.message };
@@ -134,7 +134,7 @@ const loginWithGoogle = async (googleToken) => {
   const resetPassword = async (email, otp, newPassword) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/auth/reset-password",
+        "/auth/reset-password",
         {
           email,
           otp,

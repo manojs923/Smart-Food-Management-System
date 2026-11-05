@@ -29,7 +29,7 @@ function FarmerProfile() {
           return;
         }
 
-        const res = await axios.get("http://localhost:5000/api/farmer/profile", {
+        const res = await axios.get("/api/farmer/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

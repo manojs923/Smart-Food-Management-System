@@ -22,7 +22,7 @@ const OAuthHandler = () => {
     const fetchUserData = async () => {
       try {
         // ✅ Verify token & fetch user info from backend
-        const res = await axios.get("http://localhost:5000/auth/me", {
+        const res = await axios.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

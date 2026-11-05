@@ -38,7 +38,7 @@ function FarmerSetup() {
       if (!token) return;
 
       try {
-        const res = await axios.get("http://localhost:5000/api/farmer/profile", {
+        const res = await axios.get("/api/farmer/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -65,7 +65,7 @@ function FarmerSetup() {
       const token = localStorage.getItem("token");
       if (!token) return alert("Please log in first.");
 
-      await axios.post("http://localhost:5000/api/farmer/setup", formData, {
+      await axios.post("/api/farmer/setup", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

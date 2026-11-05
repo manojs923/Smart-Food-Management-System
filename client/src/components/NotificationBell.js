@@ -42,7 +42,7 @@ const NotificationBell = () => {
       
       if (!token) return;
       
-      const response = await axios.get('http://localhost:5000/notifications', {
+      const response = await axios.get('/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -59,7 +59,7 @@ const NotificationBell = () => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.put(`http://localhost:5000/notifications/${id}/read`, {}, {
+      await axios.put(`/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -77,7 +77,7 @@ const NotificationBell = () => {
     try {
       const token = localStorage.getItem('token');
       
-      await axios.put('http://localhost:5000/notifications/read-all', {}, {
+      await axios.put('/notifications/read-all', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

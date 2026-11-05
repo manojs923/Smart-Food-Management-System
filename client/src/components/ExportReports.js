@@ -75,7 +75,7 @@ const ExportReports = () => {
       }
 
       const response = await axios({
-        url: `http://localhost:5000/reports/export`,
+        url: `/reports/export`,
         method: 'POST',
         responseType: 'blob', // Important for file downloads
         data: {

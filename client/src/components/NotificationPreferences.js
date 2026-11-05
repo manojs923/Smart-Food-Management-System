@@ -24,7 +24,7 @@ const NotificationPreferences = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('http://localhost:5000/user/profile', {
+      const response = await axios.get('/user/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -58,7 +58,7 @@ const NotificationPreferences = () => {
       
       const token = localStorage.getItem('token');
       
-      await axios.put('http://localhost:5000/user/notification-preferences', preferences, {
+      await axios.put('/user/notification-preferences', preferences, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

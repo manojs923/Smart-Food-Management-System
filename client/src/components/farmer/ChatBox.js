@@ -11,7 +11,7 @@ function ChatBox({ user, onClose }) {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/messages/${farmerId}/${user._id}`);
+        const res = await axios.get(`/messages/${farmerId}/${user._id}`);
         setMessages(res.data);
       } catch (err) {
         console.error("❌ Error fetching chat:", err);
@@ -44,7 +44,7 @@ function ChatBox({ user, onClose }) {
         text: message,
       };
 
-      await axios.post("http://localhost:5000/messages", msg);
+      await axios.post("/messages", msg);
       setMessages((prev) => [...prev, msg]);
       setMessage("");
     } catch (err) {

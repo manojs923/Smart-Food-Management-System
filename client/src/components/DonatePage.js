@@ -47,7 +47,7 @@ const DonatePage = () => {
   useEffect(() => {
     const fetchFarmers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/farmers");
+        const res = await axios.get("/farmers");
         setFarmers(res.data);
       } catch (err) {
         console.error("Error fetching farmers:", err);
@@ -82,7 +82,7 @@ const DonatePage = () => {
     const action = tab === "ngo" ? "donation scheduled" : "compost pickup requested";
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/donations/requests", {
+      await axios.post("/donations/requests", {
         partnerType: tab,
         partnerId: selectedPartner.id,
         partnerName: selectedPartner.name,

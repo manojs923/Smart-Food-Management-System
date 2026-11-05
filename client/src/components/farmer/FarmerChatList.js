@@ -17,7 +17,7 @@ useEffect(() => {
   const load = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/messages/conversations/${userId}`
+        `/messages/conversations/${userId}`
       );
       setConversations(res.data);
     } catch (err) {

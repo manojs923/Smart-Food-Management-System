@@ -12,7 +12,7 @@ function FarmerHome() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users");
+        const res = await axios.get("/api/users");
         const storedPrefs = JSON.parse(localStorage.getItem("interestPrefs") || "{}");
 
         const interested = [];

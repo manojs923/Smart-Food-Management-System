@@ -27,11 +27,11 @@ const ChatPage = () => {
 
     const load = async () => {
       try {
-        const f = await axios.get(`http://localhost:5000/farmers/${recipientId}`);
+        const f = await axios.get(`/farmers/${recipientId}`);
         setFarmer(f.data);
 
         const m = await axios.get(
-          `http://localhost:5000/messages/${customerId}/${recipientId}`
+          `/messages/${customerId}/${recipientId}`
         );
         setMessages(m.data || []);
       } catch (err) {
@@ -74,7 +74,7 @@ const ChatPage = () => {
     setNewMessage("");
 
     try {
-      await axios.post("http://localhost:5000/messages", payload);
+      await axios.post("/messages", payload);
     } catch (err) {
       console.error("❌ Send error:", err);
     }
@@ -86,7 +86,7 @@ const ChatPage = () => {
     if (!isValidObjectId) return;
 
     await axios.delete(
-      `http://localhost:5000/messages/clear/${customerId}/${recipientId}`
+      `/messages/clear/${customerId}/${recipientId}`
     );
     setMessages([]);
   };

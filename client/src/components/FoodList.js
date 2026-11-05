@@ -54,7 +54,7 @@ function FoodList() {
   const fetchFoodItems = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/food", {
+      const res = await axios.get("/food", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -155,7 +155,7 @@ function FoodList() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/food/${id}`, {
+      await axios.delete(`/food/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -170,7 +170,7 @@ function FoodList() {
   const handleMarkAsWasted = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.post(`http://localhost:5000/wastage/mark-wasted/${id}`, {}, {
+      await axios.post(`/wastage/mark-wasted/${id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

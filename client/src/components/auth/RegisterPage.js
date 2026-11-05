@@ -34,7 +34,7 @@ const RegisterPage = () => {
         formData.append("farmerDocs", farmerDocs);
       }
 
-      await axios.post("http://localhost:5000/auth/register", formData);
+      await axios.post("/auth/register", formData);
 
       alert("Registration successful! You can now log in.");
       navigate("/");
