@@ -59,6 +59,9 @@ const upload = multer({ storage });
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.get("/", (req, res) => {
+  res.json({ message: "GreenNest API is running" });
+});
 app.use("/ai", aiRoutes);
 app.use(
   session({

@@ -80,6 +80,8 @@ Deploy the API and React app as separate Render services:
 3. Create a **Static Site** with `client` as its root directory. Use `npm ci && npm run build` as the build command and `build` as the publish directory.
 4. Set `REACT_APP_API_URL` on the static site to the backend's public URL, then redeploy it so the URL is included in the frontend build.
 
+The backend's root URL (`/`) returns a JSON status message to confirm the API is running. It does not serve the React app; open the Render Static Site URL to use the frontend.
+
 Use a hosted MongoDB connection string for `MONGO_URI`. Do not commit `.env` files or put server secrets in the frontend environment.
 
 ## Useful commands
