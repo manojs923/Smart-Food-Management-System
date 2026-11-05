@@ -112,7 +112,25 @@ body.dark::after {
 }
 
 body.dark .content-wrapper::before {
-  filter: none;
+  opacity: 0.02;
+  filter: invert(1);
+}
+
+body.dark .content-wrapper {
+  background: #0b1120;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Remove doodle background and wrapper padding when nombot page is displayed */
+.content-wrapper:has(.nombot-page-wrapper) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.content-wrapper:has(.nombot-page-wrapper)::before {
+  display: none !important;
 }
 
 .content-wrapper > * {
@@ -201,6 +219,17 @@ button:hover, .btn:hover {
   align-items: center;
   gap: 10px;
   z-index: 99;
+}
+
+.theme-toggle-container span {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+  transition: color 0.3s ease;
+}
+
+body.dark .theme-toggle-container span {
+  color: #e5e7eb !important;
 }
 
 .switch {

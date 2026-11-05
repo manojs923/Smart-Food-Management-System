@@ -48,7 +48,7 @@ export default function FoodUpload({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto mt-4">
+    <div className="w-full max-w-lg mx-auto mt-2">
       {/* Upload Zone */}
       {!image ? (
         <div
@@ -60,10 +60,13 @@ export default function FoodUpload({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current && fileInputRef.current.click()}
-          className={`border-3 border-dashed rounded-3xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 relative group overflow-hidden ${
-            isDragOver
-              ? "border-lime-400 bg-lime-950/40 scale-[1.02] shadow-[0_0_30px_rgba(163,230,53,0.35)]"
-              : "border-emerald-500/40 hover:border-lime-400/80 bg-slate-900/70 hover:bg-emerald-950/30 shadow-lg"
+          style={{
+            background: "var(--nombot-card-bg)",
+            borderColor: isDragOver ? "var(--nombot-primary)" : "var(--nombot-card-border)",
+            boxShadow: "var(--nombot-shadow)",
+          }}
+          className={`border-2 border-dashed rounded-2xl p-6 sm:p-7 text-center cursor-pointer transition-all duration-300 relative group overflow-hidden ${
+            isDragOver ? "scale-[1.01]" : "hover:border-emerald-500"
           }`}
         >
           <input
@@ -71,49 +74,87 @@ export default function FoodUpload({
             type="file"
             accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
             onChange={handleFileInput}
-            className="hidden"
+            style={{ display: "none" }}
           />
 
           <div className="flex flex-col items-center gap-3 pointer-events-none">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-lime-400/20 border border-emerald-400/30 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform duration-300 shadow-md">
-              <FaCloudUploadAlt className="text-lime-300" />
+            <div
+              style={{
+                background: "var(--nombot-stat-bg)",
+                borderColor: "var(--nombot-card-border)",
+              }}
+              className="w-14 h-14 rounded-2xl border flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300"
+            >
+              <FaCloudUploadAlt style={{ color: "var(--nombot-primary)" }} />
             </div>
 
             <div>
-              <h3 className="text-xl font-black text-white tracking-wide">
+              <h3
+                style={{ color: "var(--nombot-text)" }}
+                className="text-lg font-bold tracking-tight"
+              >
                 Feed Nom-Bot Something Delicious!
               </h3>
-              <p className="text-xs sm:text-sm text-emerald-300/85 font-medium mt-1 max-w-md mx-auto">
-                Drop your fruits, vegetables or food items into my tummy. I'll check their freshness!
+              <p
+                style={{ color: "var(--nombot-text-muted)" }}
+                className="text-xs sm:text-sm font-medium mt-1 max-w-sm mx-auto leading-relaxed"
+              >
+                Drop your food items here or click to browse. Nom-Bot will analyze their freshness!
               </p>
             </div>
 
-            <div className="flex items-center gap-2 mt-1">
-              <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700">
-                Click to browse files
+            <div className="flex items-center gap-2 mt-2">
+              <span
+                style={{
+                  background: "var(--nombot-stat-bg)",
+                  borderColor: "var(--nombot-stat-border)",
+                  color: "var(--nombot-text)",
+                }}
+                className="px-3 py-1 rounded-full text-xs font-semibold border"
+              >
+                Choose File
               </span>
-              <span className="text-slate-400 text-xs">or drag and drop</span>
+              <span style={{ color: "var(--nombot-text-muted)" }} className="text-xs">
+                or drag & drop
+              </span>
             </div>
           </div>
         </div>
       ) : (
         /* Image Preview Box */
-        <div className="bg-slate-900/90 border-2 border-emerald-500/40 rounded-3xl p-5 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
-              <FaCheckCircle className="text-lime-400 text-sm" />
-              <span className="truncate max-w-[220px]">{fileName || "Selected Food Item"}</span>
+        <div
+          style={{
+            background: "var(--nombot-card-bg)",
+            borderColor: "var(--nombot-card-border)",
+            boxShadow: "var(--nombot-shadow)",
+          }}
+          className="border rounded-2xl p-4 sm:p-5"
+        >
+          <div
+            style={{ borderColor: "var(--nombot-card-border)" }}
+            className="flex items-center justify-between pb-3 border-b"
+          >
+            <div className="flex items-center gap-2 text-xs font-bold" style={{ color: "var(--nombot-text)" }}>
+              <FaCheckCircle className="text-emerald-500 text-sm" />
+              <span className="truncate max-w-[200px]">{fileName || "Selected Food Item"}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition"
+                style={{
+                  background: "var(--nombot-stat-bg)",
+                  borderColor: "var(--nombot-stat-border)",
+                  color: "var(--nombot-text)",
+                }}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border hover:opacity-80 transition cursor-pointer"
               >
                 <FaRedo className="text-[10px]" /> Replace
               </button>
               <button
+                type="button"
                 onClick={onRemoveImage}
-                className="flex items-center gap-1 px-3 py-1 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-bold border border-rose-800/60 transition"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-semibold border border-rose-500/20 transition cursor-pointer"
               >
                 <FaTimes className="text-[10px]" /> Remove
               </button>
@@ -121,12 +162,12 @@ export default function FoodUpload({
           </div>
 
           <div className="mt-4 flex flex-col items-center">
-            <div className="relative rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-xl max-h-56 max-w-xs">
+            <div className="relative rounded-xl overflow-hidden border border-slate-700 max-h-52 max-w-xs shadow-md">
               <img src={image} alt="Uploaded food" className="w-full h-full object-cover" />
               {loading && (
-                <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-lime-300 font-extrabold text-xs">
-                  <div className="w-8 h-8 border-3 border-lime-400 border-t-transparent rounded-full animate-spin" />
-                  <span>Scanning with Gemini AI...</span>
+                <div className="absolute inset-0 bg-slate-950/80 flex flex-col items-center justify-center gap-2 text-emerald-400 font-bold text-xs">
+                  <div className="w-7 h-7 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Scanning freshness...</span>
                 </div>
               )}
             </div>
@@ -137,40 +178,42 @@ export default function FoodUpload({
             type="file"
             accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
             onChange={handleFileInput}
-            className="hidden"
+            style={{ display: "none" }}
           />
         </div>
       )}
 
-      {/* Quick sample snack buttons */}
+      {/* Quick Feed Samples: Properly arranged in a centered flex row */}
       {!image && (
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-4 text-xs">
-          <span className="text-slate-400 font-semibold">Quick Feed Samples:</span>
-          <div className="flex flex-wrap gap-2 justify-center">
-            <button
-              onClick={() => onQuickSampleSelect("Mango")}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-yellow-300 border border-slate-700 transition font-bold flex items-center gap-1 shadow"
-            >
-              <span>🥭</span> Mango
-            </button>
-            <button
-              onClick={() => onQuickSampleSelect("Banana")}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-yellow-200 border border-slate-700 transition font-bold flex items-center gap-1 shadow"
-            >
-              <span>🍌</span> Banana
-            </button>
-            <button
-              onClick={() => onQuickSampleSelect("Apple")}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-red-300 border border-slate-700 transition font-bold flex items-center gap-1 shadow"
-            >
-              <span>🍎</span> Apple
-            </button>
-            <button
-              onClick={() => onQuickSampleSelect("Broccoli")}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition font-bold flex items-center gap-1 shadow"
-            >
-              <span>🥦</span> Broccoli
-            </button>
+        <div className="flex flex-col items-center gap-2.5 mt-5">
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-xs font-semibold tracking-wide uppercase"
+          >
+            Quick Feed Samples
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              { name: "Mango", icon: "🥭" },
+              { name: "Banana", icon: "🍌" },
+              { name: "Apple", icon: "🍎" },
+              { name: "Broccoli", icon: "🥦" },
+            ].map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => onQuickSampleSelect(item.name)}
+                style={{
+                  background: "var(--nombot-stat-bg)",
+                  borderColor: "var(--nombot-stat-border)",
+                  color: "var(--nombot-text)",
+                }}
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold border hover:border-emerald-500 hover:scale-105 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <span>{item.icon}</span>
+                <span>{item.name}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}

@@ -1,6 +1,14 @@
 // client/src/components/nombot/FreshnessReport.jsx
 import React, { useState, useEffect } from "react";
-import { FaHeartbeat, FaCalendarAlt, FaSnowflake, FaFire, FaShieldAlt, FaBoxOpen, FaHandHoldingHeart } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaSnowflake,
+  FaFire,
+  FaShieldAlt,
+  FaBoxOpen,
+  FaHandHoldingHeart,
+  FaThermometerHalf,
+} from "react-icons/fa";
 
 export default function FreshnessReport({
   foodData,
@@ -17,7 +25,7 @@ export default function FreshnessReport({
 
   useEffect(() => {
     let start = 0;
-    const duration = 1000;
+    const duration = 800;
     const stepTime = 20;
     const steps = duration / stepTime;
     const increment = targetScore / steps;
@@ -45,144 +53,315 @@ export default function FreshnessReport({
     ? foodData.best_before_refrigerated
     : foodData.best_before_room_temp;
 
-  // Status badge coloring
-  const statusStyles = {
-    Fresh: "bg-emerald-500/20 text-lime-300 border-lime-400/40",
-    "Use Soon": "bg-yellow-500/20 text-yellow-300 border-yellow-400/40",
-    "Donate Now": "bg-amber-500/20 text-amber-300 border-amber-400/40",
-    Discard: "bg-rose-500/20 text-rose-300 border-rose-400/40",
+  // Status badge colors: green for fresh, amber for use soon, red for expired
+  const getBadgeConfig = (status, score) => {
+    const s = (status || "").toLowerCase();
+    if (s.includes("fresh") || score >= 80) {
+      return {
+        text: status || "Fresh",
+        style: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+        progressColor: "#22c55e",
+      };
+    }
+    if (s.includes("soon") || s.includes("moderate") || (score >= 40 && score < 80)) {
+      return {
+        text: status || "Use Soon",
+        style: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+        progressColor: "#f59e0b",
+      };
+    }
+    return {
+      text: status || "Expired",
+      style: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30",
+      progressColor: "#ef4444",
+    };
   };
-  const badgeStyle = statusStyles[foodData.freshness_status] || "bg-slate-800 text-slate-300";
+
+  const badgeConfig = getBadgeConfig(foodData.freshness_status, targetScore);
 
   return (
-    <div className="w-full max-w-xl mx-auto mt-6 bg-gradient-to-b from-slate-900/95 via-slate-900/85 to-slate-950 border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl backdrop-blur-2xl text-slate-100 animate-in fade-in slide-in-from-bottom-4">
-      {/* Title & Freshness Score Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div
+      style={{
+        background: "var(--nombot-card-bg)",
+        borderColor: "var(--nombot-card-border)",
+        boxShadow: "var(--nombot-shadow)",
+      }}
+      className="w-full max-w-2xl mx-auto mt-4 rounded-2xl p-6 sm:p-7 border transition-all"
+    >
+      {/* Header: Title, Category & Status Badge */}
+      <div
+        style={{ borderColor: "var(--nombot-card-border)" }}
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b"
+      >
         <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-2xl font-black text-white tracking-wide">
-              {foodData.food_item || "Identified Food"}
+          <div className="flex items-center gap-2.5">
+            <h3
+              style={{ color: "var(--nombot-text)" }}
+              className="text-xl sm:text-2xl font-bold tracking-tight"
+            >
+              {foodData.food_item || "Identified Item"}
             </h3>
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-extrabold border ${badgeStyle}`}>
-              {foodData.freshness_status}
+            <span
+              className={`text-xs px-3 py-0.5 rounded-full font-bold border ${badgeConfig.style}`}
+            >
+              {badgeConfig.text}
             </span>
           </div>
-          <p className="text-xs text-emerald-300/80 font-medium mt-0.5">
-            Category: <span className="text-slate-200 font-bold">{foodData.category || "Produce"}</span> • Quantity: {foodData.estimated_quantity || "1 unit"}
+          <p
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-xs font-medium mt-1"
+          >
+            Category: <strong style={{ color: "var(--nombot-text)" }}>{foodData.category || "Produce"}</strong>
+            {" • "}
+            Quantity: <strong style={{ color: "var(--nombot-text)" }}>{foodData.estimated_quantity || "1 unit"}</strong>
           </p>
         </div>
 
-        {/* Circular / Score Display */}
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">
-              Freshness Score
+        {/* Numeric Score Top Indicator */}
+        <div className="text-left sm:text-right">
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] uppercase font-bold tracking-wider block"
+          >
+            Freshness Score
+          </span>
+          <span
+            style={{ color: badgeConfig.progressColor }}
+            className="text-2xl font-extrabold"
+          >
+            {animatedScore}
+            <span style={{ color: "var(--nombot-text-muted)" }} className="text-xs font-normal">
+              {" "}/ 100
             </span>
-            <span className="text-3xl font-black text-lime-300">
-              {animatedScore} <span className="text-lg text-slate-400 font-bold">/ 100</span>
-            </span>
-          </div>
+          </span>
         </div>
       </div>
 
-      {/* Storage Mode Toggle */}
+      {/* Freshness Progress Bar */}
+      <div className="my-4">
+        <div className="w-full h-2.5 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800">
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${animatedScore}%`,
+              backgroundColor: badgeConfig.progressColor,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Storage Mode Toggle Group */}
       <div className="my-5">
-        <label className="text-xs font-bold text-slate-300 mb-2 block flex items-center gap-1.5">
-          <FaBoxOpen className="text-lime-400" /> Select Storage Environment:
+        <label
+          style={{ color: "var(--nombot-text)" }}
+          className="text-xs font-bold mb-2 flex items-center gap-1.5"
+        >
+          <FaBoxOpen className="text-emerald-500" /> Storage Environment:
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setStorageMode("refrigerated")}
-            className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl font-bold text-xs transition border ${
+            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-bold text-xs transition cursor-pointer ${
               isFridge
-                ? "bg-emerald-600/90 text-white border-lime-400 shadow-lg shadow-emerald-500/25 scale-[1.02]"
-                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <FaSnowflake className={isFridge ? "text-cyan-200" : "text-cyan-400"} />
+            <FaSnowflake className={isFridge ? "text-cyan-200" : "text-cyan-500"} />
             <span>Refrigerator (Cold)</span>
           </button>
 
           <button
             type="button"
             onClick={() => setStorageMode("roomTemp")}
-            className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl font-bold text-xs transition border ${
+            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-bold text-xs transition cursor-pointer ${
               !isFridge
-                ? "bg-amber-600/90 text-white border-amber-400 shadow-lg shadow-amber-500/25 scale-[1.02]"
-                : "bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white"
+                ? "bg-amber-600 text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <FaFire className={!isFridge ? "text-amber-200" : "text-amber-400"} />
+            <FaFire className={!isFridge ? "text-amber-200" : "text-amber-500"} />
             <span>Room Temperature</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4 text-xs">
-        <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
-          <div className="flex items-center gap-1.5 text-slate-400 font-bold">
-            <FaCalendarAlt className="text-lime-400" />
-            <span>Days Remaining</span>
-          </div>
-          <p className="text-xl font-black text-white mt-1">
-            {shelfLifeDays} <span className="text-xs font-semibold text-slate-400">days</span>
+      {/* 2-Column Grid on Desktop, 1-Column on Mobile: 4 Stat Tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
+        {/* Stat Tile 1: Freshness Score */}
+        <div
+          style={{
+            background: "var(--nombot-stat-bg)",
+            borderColor: "var(--nombot-stat-border)",
+          }}
+          className="p-3.5 rounded-xl border flex flex-col justify-between"
+        >
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] font-bold uppercase tracking-wider block"
+          >
+            Freshness Score
+          </span>
+          <p
+            style={{ color: badgeConfig.progressColor }}
+            className="text-xl font-extrabold mt-1"
+          >
+            {targetScore}%
           </p>
-          <span className="text-[11px] text-emerald-300/80">Best before: {bestBefore || "N/A"}</span>
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] mt-0.5"
+          >
+            Bio-scan rating
+          </span>
         </div>
 
-        <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
-          <div className="flex items-center gap-1.5 text-slate-400 font-bold">
-            <FaShieldAlt className="text-emerald-400" />
-            <span>AI Confidence</span>
-          </div>
-          <p className="text-xl font-black text-lime-300 mt-1">{foodData.confidence}%</p>
-          <span className="text-[11px] text-slate-400">
-            Recommended temp: {foodData.recommended_storage_temp_celsius}
+        {/* Stat Tile 2: Days Remaining */}
+        <div
+          style={{
+            background: "var(--nombot-stat-bg)",
+            borderColor: "var(--nombot-stat-border)",
+          }}
+          className="p-3.5 rounded-xl border flex flex-col justify-between"
+        >
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
+            <FaCalendarAlt className="text-emerald-500" /> Days Remaining
+          </span>
+          <p
+            style={{ color: "var(--nombot-text)" }}
+            className="text-xl font-extrabold mt-1"
+          >
+            {shelfLifeDays} <span className="text-xs font-semibold">days</span>
+          </p>
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] mt-0.5"
+          >
+            Best before: {bestBefore || "N/A"}
+          </span>
+        </div>
+
+        {/* Stat Tile 3: AI Confidence */}
+        <div
+          style={{
+            background: "var(--nombot-stat-bg)",
+            borderColor: "var(--nombot-stat-border)",
+          }}
+          className="p-3.5 rounded-xl border flex flex-col justify-between"
+        >
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
+            <FaShieldAlt className="text-emerald-500" /> AI Confidence
+          </span>
+          <p
+            style={{ color: "var(--nombot-text)" }}
+            className="text-xl font-extrabold mt-1"
+          >
+            {foodData.confidence || 95}%
+          </p>
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] mt-0.5"
+          >
+            Computer vision accuracy
+          </span>
+        </div>
+
+        {/* Stat Tile 4: Recommended Temp */}
+        <div
+          style={{
+            background: "var(--nombot-stat-bg)",
+            borderColor: "var(--nombot-stat-border)",
+          }}
+          className="p-3.5 rounded-xl border flex flex-col justify-between"
+        >
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
+            <FaThermometerHalf className="text-emerald-500" /> Recommended Temp
+          </span>
+          <p
+            style={{ color: "var(--nombot-text)" }}
+            className="text-xl font-extrabold mt-1"
+          >
+            {foodData.recommended_storage_temp_celsius || (isFridge ? "4°C" : "20°C")}
+          </p>
+          <span
+            style={{ color: "var(--nombot-text-muted)" }}
+            className="text-[11px] mt-0.5"
+          >
+            Ideal preservation temperature
           </span>
         </div>
       </div>
 
-      {/* Spoilage Observations or Warnings */}
-      <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5 my-3 text-xs">
-        <span className="text-slate-400 font-bold block mb-1">🔍 Inspector Observations:</span>
+      {/* Inspector Observations Callout Box (Left accent border) */}
+      <div
+        style={{
+          background: "var(--nombot-callout-bg)",
+          borderLeft: "4px solid var(--nombot-callout-border)",
+        }}
+        className="rounded-lg p-3.5 my-4 text-xs"
+      >
+        <span
+          style={{ color: "var(--nombot-text)" }}
+          className="font-bold block mb-1"
+        >
+          🔍 Inspector Observations
+        </span>
         {foodData.visible_spoilage_signs && foodData.visible_spoilage_signs.length > 0 ? (
-          <ul className="list-disc list-inside text-amber-300 font-medium space-y-0.5">
+          <ul className="list-disc list-inside space-y-1 font-medium text-amber-600 dark:text-amber-300">
             {foodData.visible_spoilage_signs.map((sign, idx) => (
               <li key={idx}>{sign}</li>
             ))}
           </ul>
         ) : (
-          <p className="text-emerald-400 font-semibold">
-            ✓ No visible spoilage or mold signs detected.
+          <p style={{ color: "var(--nombot-callout-text)" }} className="font-semibold">
+            ✓ No visible spoilage or mold signs detected. Fresh condition.
           </p>
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 mt-3 border-t border-slate-800">
+      {/* Bottom Action Buttons: Row on desktop (right-aligned), stacked full-width on mobile */}
+      <div
+        style={{ borderColor: "var(--nombot-card-border)" }}
+        className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-2 border-t"
+      >
         <button
+          type="button"
           onClick={onCancel}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition"
+          style={{
+            borderColor: "var(--nombot-card-border)",
+            color: "var(--nombot-text)",
+          }}
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition cursor-pointer"
         >
           Cancel & Scan Another
         </button>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-end">
           {foodData.freshness_status === "Donate Now" && onDonate && (
             <button
+              type="button"
               onClick={onDonate}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-lg shadow-amber-500/25 transition"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-md transition cursor-pointer"
             >
               <FaHandHoldingHeart /> Send to Donate
             </button>
           )}
 
           <button
+            type="button"
             onClick={onSave}
             disabled={saving}
-            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-300 hover:to-emerald-300 text-slate-950 text-xs font-black shadow-lg shadow-lime-400/30 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {saving ? "Saving..." : "Save to Inventory"}
           </button>

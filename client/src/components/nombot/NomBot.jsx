@@ -11,49 +11,41 @@ export default function NomBot({ state, customMessage, foodImage }) {
       emoji: "👋",
       defaultText: "Hey chef! Ready to feed me something delicious?",
       moodClass: "nombot-idle",
-      borderGlow: "border-lime-400/80 shadow-lime-500/20",
     },
     upload: {
       emoji: "🤩",
       defaultText: "Yumm! What did you bring me?",
       moodClass: "nombot-excited",
-      borderGlow: "border-emerald-400 shadow-emerald-500/30",
     },
     analyzing: {
       emoji: "🔬",
       defaultText: "Nom nom... Let me check how fresh this is!",
       moodClass: "nombot-chewing",
-      borderGlow: "border-cyan-400 shadow-cyan-500/40",
     },
     fresh: {
       emoji: "🥳",
       defaultText: "BUUUURP! Super fresh! Add it to your inventory!",
       moodClass: "nombot-celebrating",
-      borderGlow: "border-lime-400 shadow-lime-500/40",
     },
     moderate: {
       emoji: "🤔",
       defaultText: "Hmm... Still good, but keep an eye on me!",
       moodClass: "nombot-thoughtful",
-      borderGlow: "border-yellow-400 shadow-yellow-500/30",
     },
     nearly_expired: {
       emoji: "⚠️",
       defaultText: "Chef! Eat me soon. My freshness is going down!",
       moodClass: "nombot-worried",
-      borderGlow: "border-amber-500 shadow-amber-500/30",
     },
     spoiled: {
       emoji: "🤢",
       defaultText: "Oh no! I don't think this food is safe anymore!",
       moodClass: "nombot-disgusted",
-      borderGlow: "border-rose-500 shadow-rose-500/30",
     },
     inventory_success: {
       emoji: "🎉",
       defaultText: "YAY! I've saved this delicious item!",
       moodClass: "nombot-jumping",
-      borderGlow: "border-emerald-300 shadow-emerald-400/40",
     },
   };
 
@@ -61,24 +53,17 @@ export default function NomBot({ state, customMessage, foodImage }) {
   const activeMessage = customMessage || config.defaultText;
 
   return (
-    <div className="flex flex-col items-center select-none relative my-3">
-      {/* Speech Bubble */}
-      <div className="relative mb-4 z-20 transition-all duration-300">
-        <div
-          className={`bg-slate-900/95 border-2 ${config.borderGlow} text-lime-200 px-6 py-3 rounded-2xl text-sm sm:text-base font-extrabold shadow-xl flex items-center gap-3 backdrop-blur-md`}
-        >
-          <span className="text-2xl animate-bounce">{config.emoji}</span>
-          <span className="tracking-wide">"{activeMessage}"</span>
-        </div>
-        {/* Triangle pointer */}
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[9px] border-l-transparent border-r-[9px] border-r-transparent border-t-[9px] border-t-slate-900"></div>
+    <div className="nombot-container">
+      {/* Speech Bubble: Centered rounded pill with subtle background */}
+      <div className="nombot-speech-pill">
+        <span className="nombot-speech-emoji">{config.emoji}</span>
+        <span>"{activeMessage}"</span>
       </div>
 
-      {/* Mascot Stage */}
-      <div className={`relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center ${config.moodClass}`}>
-        
+      {/* Mascot Stage: Constrained strictly to 240px desktop / 180px mobile */}
+      <div className={`nombot-mascot-wrapper ${config.moodClass}`}>
         {/* Floor Shadow Glow */}
-        <div className="absolute -bottom-2 w-48 h-6 bg-emerald-500/30 rounded-full blur-md" />
+        <div className="absolute -bottom-2 w-36 h-4 bg-emerald-500/25 rounded-full blur-md pointer-events-none" />
 
         {/* Floating food swallowed effect */}
         {state === "analyzing" && foodImage && (
@@ -86,7 +71,7 @@ export default function NomBot({ state, customMessage, foodImage }) {
             <img
               src={foodImage}
               alt="Food"
-              className="w-14 h-14 object-cover rounded-full border-3 border-yellow-400 shadow-xl"
+              className="w-12 h-12 object-cover rounded-full border-2 border-yellow-400 shadow-lg"
             />
           </div>
         )}
@@ -95,8 +80,8 @@ export default function NomBot({ state, customMessage, foodImage }) {
         {state === "analyzing" && (
           <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
             <div className="nombot-scan-beam" />
-            <span className="absolute text-xl animate-ping top-10 left-12">✨</span>
-            <span className="absolute text-xl animate-ping bottom-12 right-12">⭐</span>
+            <span className="absolute text-lg animate-ping top-8 left-8">✨</span>
+            <span className="absolute text-lg animate-ping bottom-8 right-8">⭐</span>
           </div>
         )}
 
@@ -106,13 +91,13 @@ export default function NomBot({ state, customMessage, foodImage }) {
             src="/images/nom-bot.gif"
             alt="Nom-Bot"
             onError={() => setImgError(true)}
-            className="w-full h-full object-contain filter drop-shadow-[0_15px_30px_rgba(16,185,129,0.35)]"
+            className="filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)]"
           />
         ) : (
           /* High quality embedded 3D Vector Nom-Bot Mascot */
           <svg
             viewBox="0 0 340 340"
-            className="w-full h-full filter drop-shadow-[0_15px_30px_rgba(16,185,129,0.35)]"
+            className="filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)]"
           >
             <defs>
               <radialGradient id="nbBodyGrad" cx="40%" cy="35%" r="65%">

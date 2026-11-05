@@ -215,31 +215,25 @@ function AddFood() {
   };
 
   return (
-    <div className="nombot-page-wrapper min-h-screen py-8 px-4 sm:px-6 relative overflow-hidden text-slate-100 flex flex-col items-center">
-      
+    <div className="nombot-page-wrapper">
       {/* Celebration Confetti */}
       <ConfettiEffect active={showConfetti} />
 
-      {/* Top Header Bar with Audio Controls */}
-      <div className="w-full max-w-4xl flex items-center justify-between mb-2 px-2">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl animate-bounce">🥗</span>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              Nom-Bot <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-lime-400 text-slate-950 font-black">Food Guardian</span>
-            </h1>
-            <p className="text-xs text-emerald-300/80 font-medium hidden sm:block">
-              Interactive Bio-Scan & Food Waste Prevention Companion
-            </p>
-          </div>
+      {/* Centered Header: Title, Subtitle, Audio Controls */}
+      <div className="nombot-header">
+        <h1 className="nombot-title">
+          <span>🥗</span> Nom-Bot <span className="nombot-badge-tag">Food Guardian</span>
+        </h1>
+        <p className="nombot-subtitle">
+          Interactive Bio-Scan & Food Waste Prevention Companion
+        </p>
+        <div className="nombot-audio-bar">
+          <AudioControls />
         </div>
-
-        {/* Audio Settings Panel */}
-        <AudioControls />
       </div>
 
       {/* Mascot Section */}
-      <div className="w-full max-w-4xl">
+      <div className="w-full flex justify-center">
         <NomBot state={botState} customMessage={customBotMessage} foodImage={image} />
       </div>
 
