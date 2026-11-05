@@ -1,0 +1,161 @@
+/* client/src/components/nombot/NomBot.css */
+
+/* Floating Mascot Animation */
+@keyframes nombotFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.5deg);
+  }
+}
+
+/* Chewing / Wobble Animation */
+@keyframes nombotChew {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  25% {
+    transform: scale(1.07, 0.93) translateY(4px);
+  }
+  50% {
+    transform: scale(0.95, 1.05) translateY(-5px);
+  }
+  75% {
+    transform: scale(1.05, 0.95) translateY(2px);
+  }
+}
+
+/* Celebrating Jumps */
+@keyframes nombotJump {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-20px) scale(1.05);
+  }
+  50% {
+    transform: translateY(0) scale(0.95, 1.05);
+  }
+  70% {
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+/* Disgusted Shiver */
+@keyframes nombotShiver {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px) rotate(-2deg);
+  }
+  40%, 80% {
+    transform: translateX(6px) rotate(2deg);
+  }
+}
+
+/* Worried Tremble */
+@keyframes nombotTremble {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px) scale(0.98);
+  }
+}
+
+/* Food Suck into Mouth */
+@keyframes suckFoodIntoMouth {
+  0% {
+    transform: translate(90px, 60px) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(30px, 0px) scale(0.7) rotate(-30deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0px, -20px) scale(0) rotate(-90deg);
+    opacity: 0;
+  }
+}
+
+/* Laser Scanning Beam */
+@keyframes scanLaserWave {
+  0% {
+    top: 15%;
+    opacity: 0.3;
+  }
+  50% {
+    top: 75%;
+    opacity: 1;
+  }
+  100% {
+    top: 15%;
+    opacity: 0.3;
+  }
+}
+
+.nombot-idle {
+  animation: nombotFloat 3s ease-in-out infinite;
+}
+
+.nombot-excited {
+  animation: nombotJump 1.2s ease-in-out infinite;
+}
+
+.nombot-chewing {
+  animation: nombotChew 0.26s ease-in-out infinite;
+}
+
+.nombot-celebrating {
+  animation: nombotJump 0.9s ease-in-out infinite;
+}
+
+.nombot-thoughtful {
+  animation: nombotFloat 4s ease-in-out infinite;
+}
+
+.nombot-worried {
+  animation: nombotTremble 1.5s ease-in-out infinite;
+}
+
+.nombot-disgusted {
+  animation: nombotShiver 0.5s ease-in-out infinite;
+}
+
+.nombot-jumping {
+  animation: nombotJump 0.8s ease-in-out infinite;
+}
+
+.nombot-flying-food {
+  animation: suckFoodIntoMouth 0.75s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.nombot-scan-beam {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38bdf8, #a3e635, transparent);
+  box-shadow: 0 0 15px #38bdf8;
+  border-radius: 4px;
+  animation: scanLaserWave 1.4s ease-in-out infinite;
+}
+
+/* Accessibility: Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .nombot-idle,
+  .nombot-excited,
+  .nombot-chewing,
+  .nombot-celebrating,
+  .nombot-thoughtful,
+  .nombot-worried,
+  .nombot-disgusted,
+  .nombot-jumping,
+  .nombot-flying-food,
+  .nombot-scan-beam {
+    animation: none !important;
+  }
+}

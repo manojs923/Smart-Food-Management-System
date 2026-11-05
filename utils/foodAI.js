@@ -2,6 +2,9 @@
 import fs from "fs";
 import fetch from "node-fetch";
 
+const GEMINI_MAX_ATTEMPTS = 3;
+const GEMINI_RETRY_DELAY_MS = 2000;
+
 /**
  * analyzeFoodImage(imagePath)
  * Uses Gemini vision to identify the food and estimate its shelf life.
@@ -40,30 +43,45 @@ Base freshness_status on freshness_score: 80-100=Fresh, 50-79=Use Soon, 20-49=Do
 - Do not include markdown fences or extra text.`;
 
     fs.appendFileSync("debug_gemini.txt", `\\n[${new Date().toISOString()}] Sending request to Gemini...\\n`);
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": apiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: mimeType, data: imageData } },
-              ],
-            },
-          ],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: 0.2,
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: prompt },
+              { inline_data: { mime_type: mimeType, data: imageData } },
+            ],
           },
-        }),
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+        },
+      }),
+    };
+
+    let response;
+    for (let attempt = 1; attempt <= GEMINI_MAX_ATTEMPTS; attempt += 1) {
+      response = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+        requestOptions
+      );
+
+      if (response.status !== 503 || attempt === GEMINI_MAX_ATTEMPTS) {
+        break;
       }
-    );
+
+      console.warn(
+        `[Gemini] Service unavailable (503). Retrying in ${GEMINI_RETRY_DELAY_MS / 1000}s ` +
+          `(attempt ${attempt + 1}/${GEMINI_MAX_ATTEMPTS}).`
+      );
+      await new Promise((resolve) => setTimeout(resolve, GEMINI_RETRY_DELAY_MS));
+    }
 
     if (!response.ok) {
       const text = await response.text();

@@ -133,4 +133,5 @@ Project_GreenNest/
 
 - The frontend development server proxies API requests to `http://localhost:5000`.
 - Food-photo analysis requires `GEMINI_API_KEY`.
+- Food-photo analysis automatically retries Gemini `503 UNAVAILABLE` responses up to three total attempts, waiting two seconds between attempts.
 - Keep `.env` and all API credentials private. Do not commit secrets to source control.
