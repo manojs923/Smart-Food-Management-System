@@ -73,14 +73,14 @@ Open a terminal in the `Project_GreenNest` directory.
 
 ## Deploy on Render
 
-Deploy the API and React app as separate Render services:
+Deploy the backend and React app together as one Render **Web Service**:
 
-1. Create a **Web Service** with the repository root as its root directory. Use `npm ci` as the build command and `npm start` as the start command.
-2. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, `GEMINI_API_KEY`, and `CLIENT_ORIGIN` (the deployed frontend URL). Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
-3. Create a **Static Site** with `client` as its root directory. Use `npm ci && npm run build` as the build command and `build` as the publish directory.
-4. Set `REACT_APP_API_URL` on the static site to the backend's public URL, then redeploy it so the URL is included in the frontend build.
+1. Use the repository root as the service's root directory.
+2. Set the build command to `npm ci && npm --prefix client ci && npm --prefix client run build`.
+3. Set the start command to `npm start`.
+4. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, and `GEMINI_API_KEY`. Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
 
-The backend's root URL (`/`) returns a JSON status message to confirm the API is running. It does not serve the React app; open the Render Static Site URL to use the frontend.
+Express serves the compiled React app from `client/build`, including direct navigation and refreshes on frontend routes. The frontend uses the same service origin for API requests in production. `CLIENT_ORIGIN` can be set to the service URL if cross-origin requests are needed.
 
 Use a hosted MongoDB connection string for `MONGO_URI`. Do not commit `.env` files or put server secrets in the frontend environment.
 
