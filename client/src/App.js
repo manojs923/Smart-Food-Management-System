@@ -17,6 +17,7 @@ import ProfilePage from "./components/ProfilePage";
 import RegisterPage from "./components/auth/RegisterPage";
 import TipBanner from "./components/TipBanner";
 import WastageGraph from "./components/WastageGraph";
+import AudioControls from "./components/nombot/AudioControls";
 import { useAuth } from "./contexts/AuthContext";
 import "./App.css";
 
@@ -75,6 +76,8 @@ function App() {
         <>
           {userRole === "farmer" ? <FarmerNavBar logout={logout} /> : <NavBar />}
           <div className="theme-toggle-container">
+            {/* Audio Controls Speaker Button (44px) next to Light Mode toggle */}
+            <AudioControls />
             <label className="switch">
               <input
                 type="checkbox"

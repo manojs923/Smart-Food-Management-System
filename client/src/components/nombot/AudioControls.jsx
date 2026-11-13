@@ -1,114 +1,223 @@
 // client/src/components/nombot/AudioControls.jsx
-import React, { useState } from "react";
-import { useAudioManager } from "./useAudioManager";
-import { FaMusic, FaVolumeUp, FaVolumeMute, FaSlidersH } from "react-icons/fa";
+import React, { useState, useRef, useEffect } from "react";
+import { useSound } from "./useSound";
+import { FaVolumeUp, FaVolumeMute, FaVolumeDown, FaMusic, FaBell } from "react-icons/fa";
 
 export default function AudioControls() {
   const {
-    bgmEnabled,
-    bgmVolume,
+    musicEnabled,
+    effectsEnabled,
+    musicVolume,
+    effectsVolume,
     isMuted,
-    toggleBgm,
-    setBgmVolume,
+    setMusicVolume,
+    setEffectsVolume,
+    setMusicEnabled,
+    setEffectsEnabled,
     toggleMute,
-  } = useAudioManager();
+    play,
+  } = useSound();
 
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef(null);
+  const popoverRef = useRef(null);
+  const firstFocusableRef = useRef(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideClick = (e) => {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [isOpen]);
+
+  // Keyboard navigation & accessibility (Escape closes and restores focus)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    // Move focus into the popover upon opening
+    const timer = setTimeout(() => {
+      firstFocusableRef.current?.focus();
+    }, 50);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timer);
+    };
+  }, [isOpen]);
+
+  const togglePopover = () => {
+    play("click");
+    setIsOpen((prev) => !prev);
+  };
+
+  // Determine speaker icon based on audio state
+  const isAudioOff = isMuted || (!musicEnabled && !effectsEnabled);
+  const currentVolume = Math.max(musicVolume, effectsVolume);
 
   return (
-    <div className="relative inline-flex items-center justify-center">
-      {/* Trigger Buttons: Equal 44px height, 12px gap, centered */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={toggleBgm}
-          className={`nombot-btn-audio ${bgmEnabled && !isMuted ? "active" : ""}`}
-          title="Toggle Background Music"
-        >
-          <FaMusic className={bgmEnabled && !isMuted ? "animate-pulse" : "opacity-60"} />
-          <span>BGM: {bgmEnabled && !isMuted ? "ON" : "OFF"}</span>
-        </button>
+    <div className="nombot-audio-controls-container" style={{ position: "relative", display: "inline-block" }}>
+      {/* Single 44px Speaker Icon Button */}
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={togglePopover}
+        className={`nombot-speaker-btn ${isOpen ? "active" : ""}`}
+        aria-label="Sound settings"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        aria-controls="audio-settings-popover"
+        title="Audio controls"
+      >
+        {isAudioOff ? (
+          <FaVolumeMute className="nombot-speaker-icon muted" />
+        ) : currentVolume < 35 ? (
+          <FaVolumeDown className="nombot-speaker-icon" />
+        ) : (
+          <FaVolumeUp className="nombot-speaker-icon" />
+        )}
+      </button>
 
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="nombot-btn-audio"
-          title="Audio Settings"
-        >
-          {isMuted ? <FaVolumeMute className="text-red-400" /> : <FaVolumeUp className="opacity-80" />}
-          <FaSlidersH className="opacity-60 text-xs" />
-        </button>
-      </div>
-
-      {/* Popover Settings Panel */}
+      {/* Accessible Popover (width 260px, rounded 12px, soft shadow) */}
       {isOpen && (
         <div
-          style={{
-            background: "var(--nombot-card-bg)",
-            borderColor: "var(--nombot-card-border)",
-            boxShadow: "var(--nombot-shadow)",
-            color: "var(--nombot-text)",
-          }}
-          className="absolute left-1/2 -translate-x-1/2 top-13 w-72 border rounded-2xl p-4 shadow-2xl z-50 text-xs animate-in fade-in zoom-in-95"
+          ref={popoverRef}
+          id="audio-settings-popover"
+          role="dialog"
+          aria-label="Audio controls"
+          className="nombot-audio-popover"
         >
-          <div
-            style={{ borderColor: "var(--nombot-card-border)" }}
-            className="flex items-center justify-between pb-2 mb-3 border-b"
-          >
-            <span className="font-extrabold text-sm flex items-center gap-1.5">
-              <span>🎧</span> Audio Studio
+          {/* Popover Header */}
+          <div className="nombot-popover-header">
+            <span className="nombot-popover-title">
+              <span>🔊</span> Audio Controls
             </span>
             <button
               type="button"
-              onClick={toggleMute}
-              style={{
-                borderColor: "var(--nombot-btn-border)",
-                background: isMuted ? "rgba(239, 68, 68, 0.15)" : "transparent",
-                color: isMuted ? "#ef4444" : "var(--nombot-text)",
+              onClick={() => {
+                play("click");
+                toggleMute();
               }}
-              className="px-2.5 py-1 rounded-md font-bold text-[11px] border cursor-pointer hover:opacity-80 transition"
+              className={`nombot-mute-toggle-btn ${isMuted ? "muted" : ""}`}
+              aria-pressed={isMuted}
             >
-              {isMuted ? "Unmute All" : "Mute All"}
+              {isMuted ? "Unmute" : "Mute"}
             </button>
           </div>
 
-          {/* Music Toggle & Volume */}
-          <div className="space-y-3">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span
-                  style={{ color: "var(--nombot-text)" }}
-                  className="font-semibold flex items-center gap-1.5"
-                >
-                  <FaMusic className="text-emerald-500" /> Background Music
-                </span>
+          <div className="nombot-popover-body">
+            {/* Control 1: Background Music Toggle & Slider */}
+            <div className="nombot-popover-section">
+              <div className="nombot-control-row">
+                <label htmlFor="bgm-toggle-switch" className="nombot-control-label">
+                  <FaMusic className="nombot-inline-icon music" />
+                  <span>Background music</span>
+                </label>
                 <button
+                  ref={firstFocusableRef}
+                  id="bgm-toggle-switch"
+                  role="switch"
                   type="button"
-                  onClick={toggleBgm}
-                  className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${
-                    bgmEnabled ? "bg-emerald-500 justify-end" : "bg-slate-400 dark:bg-slate-700 justify-start"
-                  }`}
+                  aria-checked={musicEnabled}
+                  onClick={() => {
+                    play("click");
+                    setMusicEnabled(!musicEnabled);
+                  }}
+                  className={`nombot-switch ${musicEnabled ? "checked" : ""}`}
                 >
-                  <div className="w-3.5 h-3.5 rounded-full bg-white shadow-md"></div>
+                  <span className="nombot-switch-thumb" />
                 </button>
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Music Volume Slider (0-100) */}
+              <div className="nombot-slider-row">
+                <label htmlFor="music-volume-slider" className="sr-only">
+                  Music volume
+                </label>
                 <input
+                  id="music-volume-slider"
                   type="range"
                   min="0"
-                  max="1"
-                  step="0.01"
-                  value={bgmVolume}
-                  onChange={(e) => setBgmVolume(parseFloat(e.target.value))}
-                  disabled={!bgmEnabled || isMuted}
-                  className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 disabled:opacity-40"
+                  max="100"
+                  step="1"
+                  value={musicVolume}
+                  onChange={(e) => setMusicVolume(parseInt(e.target.value, 10))}
+                  disabled={!musicEnabled || isMuted}
+                  className="nombot-volume-slider"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={musicVolume}
                 />
-                <span
-                  style={{ color: "var(--nombot-text-muted)" }}
-                  className="w-8 text-right text-[11px] font-mono"
+                <span className="nombot-volume-value">{musicVolume}%</span>
+              </div>
+            </div>
+
+            {/* Control 2: Sound Effects Toggle & Slider */}
+            <div className="nombot-popover-section">
+              <div className="nombot-control-row">
+                <label htmlFor="sfx-toggle-switch" className="nombot-control-label">
+                  <FaBell className="nombot-inline-icon sfx" />
+                  <span>Sound effects</span>
+                </label>
+                <button
+                  id="sfx-toggle-switch"
+                  role="switch"
+                  type="button"
+                  aria-checked={effectsEnabled}
+                  onClick={() => {
+                    play("click");
+                    setEffectsEnabled(!effectsEnabled);
+                  }}
+                  className={`nombot-switch ${effectsEnabled ? "checked" : ""}`}
                 >
-                  {Math.round(bgmVolume * 100)}%
-                </span>
+                  <span className="nombot-switch-thumb" />
+                </button>
+              </div>
+
+              {/* Effects Volume Slider (0-100) */}
+              <div className="nombot-slider-row">
+                <label htmlFor="effects-volume-slider" className="sr-only">
+                  Effects volume
+                </label>
+                <input
+                  id="effects-volume-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={effectsVolume}
+                  onChange={(e) => setEffectsVolume(parseInt(e.target.value, 10))}
+                  disabled={!effectsEnabled || isMuted}
+                  className="nombot-volume-slider"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={effectsVolume}
+                />
+                <span className="nombot-volume-value">{effectsVolume}%</span>
               </div>
             </div>
           </div>

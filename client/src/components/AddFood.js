@@ -1,16 +1,15 @@
 // client/src/components/AddFood.js
-// Upgraded Nom-Bot Interactive Food Experience
+// Nom-Bot Food Guardian Interactive Page with Central Sound Manager
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import NomBot from "./nombot/NomBot";
 import FoodUpload from "./nombot/FoodUpload";
 import FreshnessReport from "./nombot/FreshnessReport";
-import AudioControls from "./nombot/AudioControls";
 import ConfettiEffect from "./nombot/ConfettiEffect";
-import { useAudioManager } from "./nombot/useAudioManager";
+import { useSound } from "./nombot/useSound";
 import "./AddFood.css";
 
 function AddFood() {
@@ -25,20 +24,16 @@ function AddFood() {
   const [showConfetti, setShowConfetti] = useState(false);
 
   const navigate = useNavigate();
-  const { playSfx } = useAudioManager();
-  const hasWelcomedRef = useRef(false);
+  const { play, startLoop, stopLoop } = useSound();
+  const scanLoopActiveRef = useRef(false);
 
-  // Play welcome sound when user opens food upload page
-  useEffect(() => {
-    if (!hasWelcomedRef.current) {
-      hasWelcomedRef.current = true;
-      // Small timeout to allow user interaction context
-      const timer = setTimeout(() => {
-        playSfx("welcome");
-      }, 300);
-      return () => clearTimeout(timer);
+  // Soft tick on button clicks across the Nom-Bot page
+  const handleContainerClick = (e) => {
+    const btn = e.target.closest("button");
+    if (btn) {
+      play("click");
     }
-  }, [playSfx]);
+  };
 
   // Handle Image Selection & Upload
   const handleImageSelected = async (file) => {
@@ -50,62 +45,63 @@ function AddFood() {
     setShowConfetti(false);
     setCustomBotMessage("");
 
-    // State 2: Mascot excitement
+    // State 2: Mascot excitement + Upload sound effect (pop)
     setBotState("upload");
-    playSfx("upload-pop");
+    play("upload");
 
     // Prepare FormData for backend
     const formData = new FormData();
     formData.append("image", file);
 
     try {
-      // Transition to State 3: Analyzing
-      setTimeout(() => {
-        setBotState("analyzing");
-        playSfx("scanning");
-      }, 500);
-
+      // Transition to State 3: Analyzing + Scanning hum loop
+      setBotState("analyzing");
+      startLoop("scanStart");
+      scanLoopActiveRef.current = true;
       setLoading(true);
 
-      const processingTimer = setTimeout(() => {
-        playSfx("processing");
-      }, 1500);
-
       const res = await axios.post("/ai/analyze", formData);
-      clearTimeout(processingTimer);
+
+      // Stop scanning hum loop once analysis finishes
+      stopLoop("scanStart");
+      scanLoopActiveRef.current = false;
 
       const result = res.data.data;
       setFoodData(result);
 
-      // Map backend freshness_score / freshness_status to Nom-Bot States
+      // Map backend freshness status & score to Nom-Bot states and sounds
       const score = result.freshness_score || 0;
-      if (score >= 80) {
+      const status = (result.freshness_status || "").toLowerCase();
+
+      if (status.includes("fresh") || score >= 80) {
         setBotState("fresh");
         setShowConfetti(true);
-        playSfx("success");
-      } else if (score >= 50) {
+        play("resultFresh");
+      } else if (status.includes("soon") || status.includes("moderate") || score >= 40) {
         setBotState("moderate");
-        playSfx("warning");
-      } else if (score >= 20) {
-        setBotState("nearly_expired");
-        playSfx("warning");
+        play("resultUseSoon");
       } else {
-        setBotState("spoiled");
-        playSfx("spoiled");
+        setBotState(score >= 20 ? "nearly_expired" : "spoiled");
+        play("resultExpired");
       }
     } catch (err) {
       console.error("❌ Error scanning image:", err);
-      playSfx("error");
+      stopLoop("scanStart");
+      scanLoopActiveRef.current = false;
+      play("error");
       setBotState("idle");
       setCustomBotMessage("The AI assistant is busy right now. Please try again in a moment.");
     } finally {
+      stopLoop("scanStart");
+      scanLoopActiveRef.current = false;
       setLoading(false);
     }
   };
 
   // Quick Feed Sample Button Handler
   const handleQuickSample = (fruitName) => {
-    playSfx("upload-pop");
+    // Feed event: short chomp when a sample is fed
+    play("feed");
     setBotState("upload");
 
     const sampleImages = {
@@ -122,12 +118,16 @@ function AddFood() {
 
     setTimeout(() => {
       setBotState("analyzing");
-      playSfx("scanning");
-    }, 600);
+      startLoop("scanStart");
+      scanLoopActiveRef.current = true;
+    }, 400);
 
     // Realistic food inspection sample for instant preview
     setTimeout(() => {
+      stopLoop("scanStart");
+      scanLoopActiveRef.current = false;
       setLoading(false);
+
       const sampleData = {
         food_item: fruitName,
         category: fruitName === "Broccoli" ? "Vegetable" : "Fruit",
@@ -148,10 +148,10 @@ function AddFood() {
       if (sampleData.freshness_score >= 80) {
         setBotState("fresh");
         setShowConfetti(true);
-        playSfx("success");
+        play("resultFresh");
       } else {
         setBotState("moderate");
-        playSfx("warning");
+        play("resultUseSoon");
       }
     }, 2000);
   };
@@ -184,17 +184,17 @@ function AddFood() {
         },
       });
 
-      // State 8: Inventory Success
+      // State 8: Inventory Success + Save sound effect (sparkle)
       setBotState("inventory_success");
       setShowConfetti(true);
-      playSfx("inventory-added");
+      play("save");
 
       setTimeout(() => {
         navigate("/inventory");
       }, 1500);
     } catch (err) {
       console.error("❌ Error saving food:", err);
-      playSfx("error");
+      play("error");
       setCustomBotMessage("Unable to save food right now. Please try again.");
     } finally {
       setSaving(false);
@@ -203,6 +203,8 @@ function AddFood() {
 
   // Reset / Cancel
   const handleCancel = () => {
+    stopLoop("scanStart");
+    scanLoopActiveRef.current = false;
     setImage(null);
     setFileName("");
     setFoodData(null);
@@ -211,23 +213,20 @@ function AddFood() {
     setShowConfetti(false);
     setBotState("idle");
     setCustomBotMessage("");
-    playSfx("upload-pop");
+    play("click");
   };
 
   return (
-    <div className="nombot-page-wrapper">
+    <div className="nombot-page-wrapper" onClickCapture={handleContainerClick}>
       {/* Celebration Confetti */}
       <ConfettiEffect active={showConfetti} />
 
-      {/* Centered Header: Title, Subtitle, Audio Controls */}
+      {/* Centered Header: Title and Subtitle (BGM button & sound settings moved to top-right) */}
       <div className="nombot-header">
         <h1 className="nombot-title">Nom-Bot Food Guardian</h1>
         <p className="nombot-subtitle">
           Interactive Bio-Scan & Food Waste Prevention Companion
         </p>
-        <div className="nombot-audio-bar">
-          <AudioControls />
-        </div>
       </div>
 
       {/* Mascot Section */}
@@ -247,7 +246,7 @@ function AddFood() {
           onDragStateChange={(isDragging) => {
             if (isDragging && botState === "idle") {
               setBotState("upload");
-              playSfx("upload-pop");
+              play("upload");
             } else if (!isDragging && botState === "upload" && !image) {
               setBotState("idle");
             }
