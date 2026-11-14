@@ -2,14 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import socket from "../socket";
 import { FaUserCircle, FaPaperPlane, FaComments, FaArrowLeft } from "react-icons/fa";
+import { useAuth } from "../../contexts/AuthContext";
+import { getCurrentUserId } from "../../utils/authUtils";
+import { mergeUniqueMessages } from "../../utils/chatUtils";
 import "./FarmerMessages.css";
 
 const FarmerMessages = () => {
-  const farmerId = localStorage.getItem("userId");
+  const { user } = useAuth();
+  const farmerId = getCurrentUserId(user);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const [chatError, setChatError] = useState("");
+  const [sending, setSending] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const chatEndRef = useRef(null);
@@ -38,11 +44,13 @@ const FarmerMessages = () => {
   useEffect(() => {
     if (!selectedUser || !farmerId) return;
 
+    setMessages([]);
+    setChatError("");
     const fetchMessages = async () => {
       setLoadingMessages(true);
       try {
         const res = await axios.get(`/messages/${farmerId}/${selectedUser._id}`);
-        setMessages(res.data || []);
+        setMessages((current) => mergeUniqueMessages(res.data || [], current));
       } catch (err) {
         console.error("Failed to fetch messages:", err);
       } finally {
@@ -59,11 +67,13 @@ const FarmerMessages = () => {
 
     const handleReceiveMessage = (msg) => {
       if (!selectedUser) return;
+      const senderId = String(msg.senderId?._id || msg.senderId);
+      const recipientId = String(msg.recipientId?._id || msg.recipientId);
       if (
-        (msg.senderId === selectedUser._id && msg.recipientId === farmerId) ||
-        (msg.senderId === farmerId && msg.recipientId === selectedUser._id)
+        (senderId === String(selectedUser._id) && recipientId === String(farmerId)) ||
+        (senderId === String(farmerId) && recipientId === String(selectedUser._id))
       ) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((current) => mergeUniqueMessages(current, [msg]));
       }
     };
 
@@ -76,23 +86,33 @@ const FarmerMessages = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!text.trim() || !selectedUser || !farmerId) return;
+    const messageText = text.trim();
+    if (!messageText || !selectedUser || !farmerId || sending) return;
+    if (messageText.length > 2000 || !socket.connected) {
+      setChatError("Message failed to send, try again");
+      return;
+    }
 
     const payload = {
       senderId: farmerId,
       recipientId: selectedUser._id,
-      text: text.trim(),
+      text: messageText,
     };
 
-    try {
-      await axios.post("/messages", payload);
-      setMessages((prev) => [...prev, payload]);
-      setText("");
-    } catch (err) {
-      console.error("Failed to send message:", err);
-    }
+    setChatError("");
+    setSending(true);
+    setText("");
+    socket.timeout(5000).emit("sendMessage", payload, (timeoutError, response) => {
+      setSending(false);
+      if (timeoutError || !response?.ok) {
+        setChatError("Message failed to send, try again");
+        setText((current) => current || messageText);
+        return;
+      }
+      setChatError("");
+    });
   };
 
   return (
@@ -155,6 +175,8 @@ const FarmerMessages = () => {
                   </div>
                 </div>
 
+                {chatError && <p role="alert">{chatError}</p>}
+
                 <div className="farmer-chat-messages">
                   {loadingMessages ? (
                     <div className="farmer-messages-placeholder">Loading messages...</div>
@@ -185,7 +207,11 @@ const FarmerMessages = () => {
                   <input
                     type="text"
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
+                    maxLength={2000}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      setChatError("");
+                    }}
                     placeholder="Type your message..."
                     className="farmer-chat-input"
                     aria-label="Type message"
@@ -193,7 +219,7 @@ const FarmerMessages = () => {
                   <button
                     type="submit"
                     className="farmer-btn farmer-btn-primary farmer-chat-send-btn"
-                    disabled={!text.trim()}
+                    disabled={!text.trim() || sending}
                     aria-label="Send message"
                   >
                     <FaPaperPlane />

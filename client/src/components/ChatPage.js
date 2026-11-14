@@ -1,39 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
-import { jwtDecode } from "jwt-decode";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import socket from "./socket";
 import { FaArrowLeft, FaPaperPlane, FaTrashAlt } from "react-icons/fa";
+import { useAuth } from "../contexts/AuthContext";
+import { getCurrentUserId } from "../utils/authUtils";
+import { mergeUniqueMessages } from "../utils/chatUtils";
 import "./ChatPage.css";
 
 const ChatPage = () => {
   const { recipientId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [farmer, setFarmer] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [chatError, setChatError] = useState("");
+  const [sending, setSending] = useState(false);
   const chatEndRef = useRef(null);
 
-  const token = localStorage.getItem("token");
-  const customerId = jwtDecode(token).userId;
+  const customerId = getCurrentUserId(user);
 
   // 🚨 Validate ObjectId (24 hex chars)
   const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(recipientId);
 
   // 👉 Hooks must run ALWAYS — no return before them!
   useEffect(() => {
-    if (!isValidObjectId) return; // ❗ Skip execution, but hook still exists
+    if (!isValidObjectId || !customerId) return;
 
+    setMessages([]);
+    setChatError("");
     const load = async () => {
       try {
         const f = await axios.get(`/farmers/${recipientId}`);
         setFarmer(f.data);
 
-        const m = await axios.get(
-          `/messages/${customerId}/${recipientId}`
-        );
-        setMessages(m.data || []);
+        const m = await axios.get(`/messages/${customerId}/${recipientId}`);
+        setMessages((current) => mergeUniqueMessages(m.data || [], current));
       } catch (err) {
         console.error("❌ Chat load error:", err);
       } finally {
@@ -44,17 +48,19 @@ const ChatPage = () => {
     load();
     socket.emit("joinRoom", customerId);
 
-    socket.off("receiveMessage");
-    socket.on("receiveMessage", (msg) => {
+    const handleReceiveMessage = (msg) => {
+      const senderId = String(msg.senderId?._id || msg.senderId);
+      const messageRecipientId = String(msg.recipientId?._id || msg.recipientId);
       if (
-        (msg.senderId === customerId && msg.recipientId === recipientId) ||
-        (msg.senderId === recipientId && msg.recipientId === customerId)
+        (senderId === String(customerId) && messageRecipientId === String(recipientId)) ||
+        (senderId === String(recipientId) && messageRecipientId === String(customerId))
       ) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((current) => mergeUniqueMessages(current, [msg]));
       }
-    });
+    };
+    socket.on("receiveMessage", handleReceiveMessage);
 
-    return () => socket.off("receiveMessage");
+    return () => socket.off("receiveMessage", handleReceiveMessage);
   }, [customerId, recipientId, isValidObjectId]);
 
   useEffect(() => {
@@ -62,36 +68,44 @@ const ChatPage = () => {
   }, [messages]);
 
   // SEND
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !isValidObjectId) return;
+  const sendMessage = () => {
+    const text = newMessage.trim();
+    if (!text || !isValidObjectId || !customerId || sending) return;
+    if (text.length > 2000 || !socket.connected) {
+      setChatError("Message failed to send, try again");
+      return;
+    }
 
     const payload = {
-      text: newMessage,
+      text,
       senderId: customerId,
       recipientId,
     };
 
+    setChatError("");
+    setSending(true);
     setNewMessage("");
-
-    try {
-      await axios.post("/messages", payload);
-    } catch (err) {
-      console.error("❌ Send error:", err);
-    }
+    socket.timeout(5000).emit("sendMessage", payload, (timeoutError, response) => {
+      setSending(false);
+      if (timeoutError || !response?.ok) {
+        setChatError("Message failed to send, try again");
+        setNewMessage((current) => current || text);
+        return;
+      }
+      setChatError("");
+    });
   };
 
   // CLEAR CHAT
   const clearChat = async () => {
     if (!window.confirm("Clear entire chat?")) return;
-    if (!isValidObjectId) return;
+    if (!isValidObjectId || !customerId) return;
 
-    await axios.delete(
-      `/messages/clear/${customerId}/${recipientId}`
-    );
+    await axios.delete(`/messages/clear/${customerId}/${recipientId}`);
     setMessages([]);
   };
 
-  // 👉 NOW we safely validate AFTER hooks
+  // 👉 Safely validate AFTER hooks
   if (!isValidObjectId) {
     return (
       <div style={{ padding: "20px", fontSize: "18px", color: "red" }}>
@@ -107,10 +121,9 @@ const ChatPage = () => {
       <div className="chat-container">
         <div className="chat-header">
           <div className="header-left-content">
-          <button onClick={() => navigate("/farmer/dashboard")} className="header-button back-button">
-  <FaArrowLeft />
-</button>
-
+            <button onClick={() => navigate(-1)} className="header-button back-button">
+              <FaArrowLeft />
+            </button>
 
             <div className="header-user-info">
               <div className="header-avatar">{farmer?.name?.[0] || "F"}</div>
@@ -147,14 +160,23 @@ const ChatPage = () => {
         </div>
 
         <div className="chat-input-area-wrapper">
+          {chatError && <p role="alert">{chatError}</p>}
           <div className="chat-input-controls">
             <input
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              maxLength={2000}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                setChatError("");
+              }}
               placeholder="Type message..."
               className="chat-input-field"
             />
-            <button onClick={sendMessage} className="control-button send-button">
+            <button
+              onClick={sendMessage}
+              className="control-button send-button"
+              disabled={!newMessage.trim() || sending}
+            >
               <FaPaperPlane />
             </button>
           </div>

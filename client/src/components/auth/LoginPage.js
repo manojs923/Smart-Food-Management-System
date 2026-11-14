@@ -34,7 +34,6 @@ const LoginPage = () => {
     setError("");
     setSuccess("");
     try {
-      console.log("📤 Attempting login:", { email, password });
       const loggedIn = await login(email, password);
       setSuccess("✅ Login successful! Redirecting...");
       const target = getDestination(loggedIn?.role || user?.role);
@@ -165,9 +164,7 @@ const LoginPage = () => {
                 const token = credentialResponse.credential;
 
                 // ✅ Use your AuthContext method instead of raw axios
-                const user = await loginWithGoogle(token);
-
-                console.log("✅ Google login success:", user);
+                await loginWithGoogle(token);
                 navigate("/home"); // ✅ Navigate immediately after login
 
               } catch (err) {

@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { connectSocket, disconnectSocket } from "../components/socket";
 
 const AuthContext = createContext();
 
@@ -7,6 +9,47 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const completeLogin = useCallback((token, userData = {}) => {
+    localStorage.setItem("token", token);
+    if (userData.role) localStorage.setItem("userRole", userData.role);
+
+    let userId = userData.userId || userData._id || userData.id;
+    if (!userId && token) {
+      try {
+        const decoded = jwtDecode(token);
+        userId = decoded?.userId || decoded?._id || decoded?.id;
+      } catch (error) {
+        console.warn("Token decode error:", error);
+      }
+    }
+
+    if (userId) localStorage.setItem("userId", String(userId));
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const loggedInUser = {
+      ...userData,
+      _id: userId,
+      id: userId,
+      userId,
+      token,
+    };
+    setUser(loggedInUser);
+    setIsAuthenticated(true);
+    connectSocket();
+    return loggedInUser;
+  }, []);
+
+  const logout = useCallback(() => {
+    disconnectSocket();
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userId");
+    delete axios.defaults.headers.common["Authorization"];
+    setUser(null);
+    setIsAuthenticated(false);
+    console.log("👋 Logged out successfully");
+  }, []);
 
   // ✅ Automatically check token on load
   useEffect(() => {
@@ -16,13 +59,7 @@ export const AuthProvider = ({ children }) => {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
           const response = await axios.get("/auth/me");
-          const role = response.data.role || "user";
-          localStorage.setItem("userRole", role);
-          setUser({
-            email: response.data.email,
-            role,
-          });
-          setIsAuthenticated(true);
+          completeLogin(token, response.data);
         } catch (error) {
           console.error(
             "❌ Auth token invalid or expired:",
@@ -35,14 +72,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
-  }, []);
+  }, [completeLogin, logout]);
 
   // ✅ Manual login (email/password)
   const login = async (email, password) => {
     try {
-      console.log("📤 Sending login request:", { email, password });
-
-      // ❗ FIXED: removed JSON.stringify()
       const response = await axios.post(
         "/auth/login",
         { email, password },
@@ -54,18 +88,9 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
-      const { token, email: userEmail, role } = response.data;
-      console.log("✅ Login response:", response.data);
+      const { token } = response.data;
 
-      // Save token and update axios
-      localStorage.setItem("token", token);
-      if (role) localStorage.setItem("userRole", role);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      const loggedInUser = { email: userEmail, role, token };
-      setUser(loggedInUser);
-      setIsAuthenticated(true);
-      return loggedInUser;
+      return completeLogin(token, response.data);
     } catch (error) {
       console.error("❌ Login failed:", error.response?.data || error.message);
       throw error;
@@ -73,38 +98,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ✅ Google login (after redirect with token)
-const loginWithGoogle = async (googleToken) => {
-  try {
-    const response = await axios.post("/auth/google", {
-      token: googleToken,
-    });
+  const loginWithGoogle = async (googleToken) => {
+    try {
+      const response = await axios.post("/auth/google", {
+        token: googleToken,
+      });
 
-    const { token, email, role } = response.data;
+      const newUser = completeLogin(response.data.token, response.data);
 
-    localStorage.setItem("token", token);
-    if (role) localStorage.setItem("userRole", role);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-    const newUser = { email, role, token };
-    setUser(newUser);
-    setIsAuthenticated(true);
-
-    console.log("✅ Google login successful:", response.data);
-    return newUser; // ✅ Return this so LoginPage can act instantly
-  } catch (err) {
-    console.error("❌ Google login failed:", err.response?.data || err.message);
-    throw err;
-  }
-};
-
-  // ✅ Logout user
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    delete axios.defaults.headers.common["Authorization"];
-    setUser(null);
-    setIsAuthenticated(false);
-    console.log("👋 Logged out successfully");
+      console.log("✅ Google login successful");
+      return newUser;
+    } catch (err) {
+      console.error("❌ Google login failed:", err.response?.data || err.message);
+      throw err;
+    }
   };
 
   // ✅ OTP utilities
@@ -165,6 +172,7 @@ const loginWithGoogle = async (googleToken) => {
         loading,
         login,
         loginWithGoogle,
+        completeLogin,
         logout,
         setUser,
         requestPasswordReset,

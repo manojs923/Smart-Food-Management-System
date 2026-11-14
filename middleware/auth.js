@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config/jwt.js";
 
 const auth = (req, res, next) => {
   try {
@@ -27,7 +28,7 @@ const auth = (req, res, next) => {
       return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
 
     next();

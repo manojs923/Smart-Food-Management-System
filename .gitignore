@@ -56,6 +56,9 @@ uploads/
 # MongoDB dump
 dump/
 
+# Local-only integration verification
+verify_chat_and_socket.js
+
 # Backup and compiled files
 *.bak
 *.out

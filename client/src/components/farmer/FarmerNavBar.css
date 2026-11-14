@@ -104,31 +104,33 @@ body.dark .farmer-navbar {
   padding: 8px 16px;
   min-height: 40px;
   border-radius: 10px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  border: 1px solid var(--border) !important;
+  background: var(--surface-secondary) !important;
+  color: var(--text) !important;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: none !important;
 }
 
 body.dark .farmer-logout-btn {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--surface-secondary) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
 }
 
 .farmer-logout-btn:hover {
-  background-color: #dc2626;
-  color: #ffffff;
-  border-color: #dc2626;
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
   transform: translateY(-1px);
 }
 
 body.dark .farmer-logout-btn:hover {
-  background-color: #ef4444;
-  color: #ffffff;
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
 }
 
 .farmer-hamburger-btn {

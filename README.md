@@ -79,11 +79,21 @@ Deploy the backend and React app together as one Render **Web Service**:
 1. Use the repository root as the service's root directory.
 2. Set the build command to `npm ci && npm --prefix client ci && npm --prefix client run build`.
 3. Set the start command to `npm start`.
-4. Set the backend environment variables in Render: `MONGO_URI`, `JWT_SECRET`, `SESSION_SECRET`, `GEMINI_API_KEY`, and `GEMINI_MODEL=gemini-3.5-flash-lite`. Add `GOOGLE_CLIENT_ID` if Google sign-in is enabled.
+4. Set the backend environment variables in Render:
+   - Required: `MONGO_URI`, `JWT_SECRET`, and `SESSION_SECRET`.
+   - For AI features: `GEMINI_API_KEY` and `GEMINI_MODEL` (for example, `gemini-3.5-flash-lite`).
+   - For Google sign-in: `GOOGLE_CLIENT_ID`.
+   - For password-reset and expiry emails: `EMAIL_USER` and `EMAIL_PASSWORD`.
+   - For the protected expiry-check endpoint: `CRON_API_KEY`.
+   - Set `CLIENT_ORIGIN` if the frontend is served from a different origin. Render supplies `PORT`; `NODE_ENV` is set to `production` for deployed Node services.
+   - Optional frontend build-time overrides: `REACT_APP_API_URL` and `REACT_APP_SOCKET_URL`. Leave them unset when the frontend and API share the Render service origin.
+   - `TEST_MONGO_URI` is only for the local verification script; do not set it on Render.
 
 Express serves the compiled React app from `client/build`, including direct navigation and refreshes on frontend routes. The frontend uses the same service origin for API requests in production. `CLIENT_ORIGIN` can be set to the service URL if cross-origin requests are needed.
 
 Use a hosted MongoDB connection string for `MONGO_URI`. Do not commit `.env` files or put server secrets in the frontend environment.
+
+Google sign-in uses Google Identity Services with `GOOGLE_CLIENT_ID`; authorize the Render site origin in Google Cloud. The app has no server-side Google redirect callback route; `/auth/google/callback` is a frontend route that handles an application token in the URL.
 
 ## Jenkins CI/CD (hands-on)
 

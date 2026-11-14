@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../../contexts/AuthContext";
 
 const OAuthHandler = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { completeLogin } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -21,6 +22,14 @@ const OAuthHandler = () => {
 
     const fetchUserData = async () => {
       try {
+        let decodedUserId = "";
+        try {
+          const decoded = jwtDecode(token);
+          decodedUserId = decoded?.userId || decoded?._id || "";
+        } catch {
+          // Token decode failed
+        }
+
         // ✅ Verify token & fetch user info from backend
         const res = await axios.get("/auth/me", {
           headers: {
@@ -29,20 +38,14 @@ const OAuthHandler = () => {
         });
 
         const user = res.data;
+        const resolvedUserId = user._id || user.userId || decodedUserId || "";
 
-        // ✅ Save everything to localStorage
-        localStorage.setItem("token", token);
-        localStorage.setItem("userId", user._id || user.userId || "");
-        localStorage.setItem("userEmail", user.email);
-        localStorage.setItem("userRole", user.role);
+        console.log("✅ Google login successful");
 
-        console.log("✅ Google login successful:", user);
+        completeLogin(token, { ...user, userId: resolvedUserId });
 
-        // ✅ Update AuthContext (so isAuthenticated becomes true)
-        login(token);
-
-        // 🚀 Redirect to /home
-        navigate("/home");
+        // 🚀 Redirect to appropriate dashboard based on role
+        navigate(user.role === "farmer" ? "/farmer/dashboard" : "/home");
 
       } catch (err) {
         console.error("❌ Failed to complete Google login:", err);
@@ -51,7 +54,7 @@ const OAuthHandler = () => {
     };
 
     fetchUserData();
-  }, [location, login, navigate]);
+  }, [location, completeLogin, navigate]);
 
   return (
     <div className="flex items-center justify-center h-screen">

@@ -1,11 +1,11 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const { OAuth2Client } = require("google-auth-library");
-
-const User = require("../models/userModel");
-const OTP = require("../models/otpModel");
-const sendOtpEmail = require("../utils/sendOtpEmail.js");
-const generateOTP = require("../utils/generateOtp");
+import express from "express";
+import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+import User from "../models/userModel.js";
+import OTP from "../models/otpModel.js";
+import sendOtpEmail from "../client/utils/sendOtpEmail.js";
+import generateOTP from "../client/utils/generateOtp.js";
+import { JWT_SECRET } from "../config/jwt.js";
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -162,7 +162,7 @@ router.post("/google-login", async (req, res) => {
       await user.save();
     }
 
-    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const jwtToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -172,4 +172,4 @@ router.post("/google-login", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

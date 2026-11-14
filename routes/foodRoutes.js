@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config/jwt.js";
 import FoodItem from "../models/foodItem.js";
 import DeletedFoodItem from "../models/deletedFoodItem.js";
 
@@ -14,7 +15,7 @@ const authenticate = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
@@ -51,7 +52,11 @@ router.post("/add", authenticate, async (req, res) => {
 // ✅ Get all food items for a user
 router.get("/", authenticate, async (req, res) => {
   try {
-    const foodItems = await FoodItem.find({ userId: req.user.userId });
+    const query = { userId: req.user.userId };
+    if (req.query.wasted === "true") {
+      query.isWasted = true;
+    }
+    const foodItems = await FoodItem.find(query).sort({ wastedAt: -1, expiryDate: -1 });
     res.json(foodItems);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch food items" });
@@ -330,7 +335,11 @@ router.post("/add-test-data", authenticate, async (req, res) => {
 // ✅ Debug: List all food items
 router.get("/debug-list", authenticate, async (req, res) => {
   try {
-    const foodItems = await FoodItem.find({ userId: req.user.userId });
+    const query = { userId: req.user.userId };
+    if (req.query.wasted === "true") {
+      query.isWasted = true;
+    }
+    const foodItems = await FoodItem.find(query).sort({ wastedAt: -1, expiryDate: -1 });
     res.json(
       foodItems.map((item) => ({
         name: item.name,

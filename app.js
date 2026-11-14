@@ -26,6 +26,7 @@ dotenv.config();
 // === Utils & Models ===
 import sendOtpEmail from "./client/utils/sendOtpEmail.js";
 import generateOTP from "./client/utils/generateOtp.js";
+import { JWT_SECRET } from "./config/jwt.js";
 import auth from "./middleware/auth.js";
 import requireRole from "./middleware/requireRole.js";
 
@@ -42,7 +43,11 @@ import { OAuth2Client } from "google-auth-library";
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
+const MAX_MESSAGE_LENGTH = 2000;
+if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+  throw new Error("FATAL CONFIG ERROR: SESSION_SECRET environment variable must be defined in production!");
+}
 const frontendBuildPath = path.join(__dirname, "client", "build");
 const frontendIndexPath = path.join(frontendBuildPath, "index.html");
 const apiRoutePrefixes = [
@@ -153,13 +158,16 @@ app.post("/auth/login", async (req, res) => {
     // 🧾 Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "secretkey",
+      JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.json({
       message: "✅ Login successful",
       token,
+      _id: user._id,
+      id: user._id,
+      userId: user._id,
       role: user.role,
       email: user.email,
     });
@@ -207,12 +215,15 @@ app.post("/auth/google", async (req, res) => {
     // Generate our app's token
     const appToken = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "secretkey",
+      JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.json({
       token: appToken,
+      _id: user._id,
+      id: user._id,
+      userId: user._id,
       email: user.email,
       role: user.role,
       message: "✅ Google login successful",
@@ -270,14 +281,19 @@ app.post("/auth/reset-password", async (req, res) => {
 // ================= NEW CHAT LOGIC (YOURS IS GOOD) =================
 
 // ✅ Get chat history between two specific users
-app.get("/messages/:userId1/:userId2", async (req, res) => {
+app.get("/messages/:userId1/:userId2", auth, async (req, res) => {
   try {
     const { userId1, userId2 } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId1) ||
       !mongoose.Types.ObjectId.isValid(userId2)
     ) {
-      return res.status(400).json({ message: "Invalid IDs" });
+      return res.status(400).json({ message: "Invalid user IDs provided" });
+    }
+
+    const currentUserId = String(req.user?.userId || req.user?._id || req.user?.id || "");
+    if (currentUserId && currentUserId !== String(userId1) && currentUserId !== String(userId2)) {
+      return res.status(403).json({ message: "Access denied. You can only view your own messages." });
     }
 
     const messages = await Message.find({
@@ -325,14 +341,19 @@ app.get("/messages/conversations/:userId", async (req, res) => {
   }
 });
 
-app.delete("/messages/clear/:userId1/:userId2", async (req, res) => {
+app.delete("/messages/clear/:userId1/:userId2", auth, async (req, res) => {
   try {
     const { userId1, userId2 } = req.params;
     if (
       !mongoose.Types.ObjectId.isValid(userId1) ||
       !mongoose.Types.ObjectId.isValid(userId2)
     ) {
-      return res.status(400).json({ message: "Invalid IDs" });
+      return res.status(400).json({ message: "Invalid user IDs provided" });
+    }
+
+    const currentUserId = String(req.user?.userId || req.user?._id || req.user?.id || "");
+    if (currentUserId && currentUserId !== String(userId1) && currentUserId !== String(userId2)) {
+      return res.status(403).json({ message: "Access denied. You can only view your own messages." });
     }
 
     await Message.deleteMany({
@@ -359,7 +380,9 @@ app.get("/user/info/:userId", async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     
     res.json({
+      _id: user._id,
       id: user._id,
+      userId: user._id,
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       email: user.email,
     });
@@ -485,7 +508,7 @@ app.use("/donations", auth, donationRoutes);
 // app.use("/ai", auth, aiRoutes); // This is already defined at the top without auth, decide if it needs it
 
 // === Cron Job ===
-cron.schedule("0 8 * * *", async () => {
+const expiryCheckTask = cron.schedule("0 8 * * *", async () => {
   console.log("📆 Running scheduled expiry check...");
   // ... (cron job logic) ...
 });
@@ -496,10 +519,32 @@ const server = http.createServer(app);
 // ========== SOCKET.IO FIXED SINGLE INSTANCE ==========
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    origin: [process.env.CLIENT_ORIGIN || "http://localhost:3000", "http://localhost:3000", "http://127.0.0.1:3000"],
     methods: ["GET", "POST"],
     credentials: true,
   },
+});
+
+// ✅ Strict Socket.IO authentication middleware (same JWT secret/algo as auth.js)
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (!token) {
+    return next(new Error("unauthorized"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded || !decoded.userId) {
+      return next(new Error("unauthorized"));
+    }
+    socket.user = {
+      userId: String(decoded.userId),
+      role: decoded.role || "user",
+    };
+    next();
+  } catch (err) {
+    return next(new Error("unauthorized"));
+  }
 });
 
 // ✅ Fetch farmer profile
@@ -529,7 +574,7 @@ app.get("/auth/me", async (req, res) => {
 
     const token = authHeader.split(" ")[1];
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     const user = await User.findById(decoded.userId)
       .select("email role farmerDetails firstName lastName");
@@ -539,6 +584,9 @@ app.get("/auth/me", async (req, res) => {
     }
 
     res.json({
+      _id: user._id,
+      id: user._id,
+      userId: user._id,
       email: user.email,
       role: user.role,
       farmerDetails: user.farmerDetails || null,
@@ -555,18 +603,35 @@ app.get("/auth/me", async (req, res) => {
 // =======================================
 // POST MESSAGE (GENERAL) → /messages
 // =======================================
-app.post("/messages", async (req, res) => {
+app.post("/messages", auth, async (req, res) => {
   try {
-    const { senderId, recipientId, text } = req.body;
+    const { recipientId, text } = req.body;
+    const senderId = req.user?.userId || req.user?._id || req.user?.id || req.body.senderId;
+    const messageText = typeof text === "string" ? text.trim() : "";
 
-    if (!senderId || !recipientId || !text) {
-      return res.status(400).json({ message: "Missing fields" });
+    if (!senderId || !recipientId || !messageText) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    if (messageText.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({ message: "Message cannot exceed 2000 characters" });
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(senderId) ||
+      !mongoose.Types.ObjectId.isValid(recipientId)
+    ) {
+      return res.status(400).json({ message: "Invalid sender or recipient ID" });
+    }
+
+    const recipientUser = await User.findById(recipientId).select("_id");
+    if (!recipientUser) {
+      return res.status(404).json({ message: "Recipient user not found" });
     }
 
     const msg = await new Message({
       senderId,
       recipientId,
-      text,
+      text: messageText,
     }).save();
 
     // Emit socket event
@@ -583,22 +648,40 @@ app.post("/messages", async (req, res) => {
 // =======================================
 // POST MESSAGE (FARMER CHATBOX) → /api/messages
 // =======================================
-app.post("/api/messages", async (req, res) => {
+app.post("/api/messages", auth, async (req, res) => {
   try {
-    const { senderId, receiverId, text } = req.body;
+    const { receiverId, recipientId: altRecipientId, text } = req.body;
+    const recipientId = receiverId || altRecipientId;
+    const senderId = req.user?.userId || req.user?._id || req.user?.id || req.body.senderId;
+    const messageText = typeof text === "string" ? text.trim() : "";
 
-    if (!senderId || !receiverId || !text) {
-      return res.status(400).json({ message: "Missing fields" });
+    if (!senderId || !recipientId || !messageText) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    if (messageText.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({ message: "Message cannot exceed 2000 characters" });
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(senderId) ||
+      !mongoose.Types.ObjectId.isValid(recipientId)
+    ) {
+      return res.status(400).json({ message: "Invalid sender or recipient ID" });
+    }
+
+    const recipientUser = await User.findById(recipientId).select("_id");
+    if (!recipientUser) {
+      return res.status(404).json({ message: "Recipient user not found" });
     }
 
     const msg = await new Message({
       senderId,
-      recipientId: receiverId,
-      text,
+      recipientId,
+      text: messageText,
     }).save();
 
     io.to(String(senderId)).emit("receiveMessage", msg);
-    io.to(String(receiverId)).emit("receiveMessage", msg);
+    io.to(String(recipientId)).emit("receiveMessage", msg);
 
     res.json(msg);
   } catch (err) {
@@ -609,27 +692,75 @@ app.post("/api/messages", async (req, res) => {
 
 
 io.on("connection", (socket) => {
-  console.log("🟢 Client connected:", socket.id);
+  console.log("🟢 Client connected:", socket.id, "User:", socket.user?.userId);
+
+  // Auto-join socket to its own verified user room
+  if (socket.user?.userId) {
+    socket.join(String(socket.user.userId));
+  }
 
   // ✅ Have user join a room based on their OWN userId
   socket.on("joinRoom", (userId) => {
-    socket.join(userId);
-    console.log(`📦 User ${socket.id} joined their room: ${userId}`);
+    if (!userId || userId === "null" || userId === "undefined") return;
+    if (String(userId) === String(socket.user?.userId)) {
+      socket.join(String(socket.user.userId));
+      console.log(`📦 User ${socket.id} joined authorized room: ${socket.user.userId}`);
+    } else {
+      console.warn(`🚫 Socket ${socket.id} blocked from unauthorized room: ${userId}`);
+    }
+
   });
 
   // ✅ Handle new message
-  socket.on("sendMessage", async (msg) => {
+  socket.on("sendMessage", async (msg, acknowledge) => {
+    const respond = (result) => {
+      if (typeof acknowledge === "function") acknowledge(result);
+    };
+
     try {
-      // 1. Save message in DB
-      const savedMsg = await new Message(msg).save();
+      if (!msg) {
+        respond({ ok: false, error: "Message is required" });
+        return;
+      }
 
-      // 2. Emit the message to the RECIPIENT'S room
-      // This sends it to the recipient's "ChatPage" if they are online
-      io.to(msg.recipientId).emit("receiveMessage", savedMsg);
+      const senderId = socket.user?.userId;
+      const recipientId = msg.recipientId || msg.receiverId;
+      const text = typeof msg.text === "string" ? msg.text.trim() : "";
 
-      console.log("💬 Message sent & broadcast:", savedMsg);
-    } catch (err)      {
+      if (!senderId || !recipientId || !text) {
+        respond({ ok: false, error: "Sender, recipient, and message text are required" });
+        return;
+      }
+      if (text.length > MAX_MESSAGE_LENGTH) {
+        respond({ ok: false, error: "Message cannot exceed 2000 characters" });
+        return;
+      }
+      if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(recipientId)) {
+        respond({ ok: false, error: "Invalid sender or recipient ID" });
+        return;
+      }
+
+      const recipientExists = await User.findById(recipientId).select("_id");
+      if (!recipientExists) {
+        console.warn(`⚠️ Recipient user ${recipientId} does not exist`);
+        respond({ ok: false, error: "Recipient user not found" });
+        return;
+      }
+
+      const savedMsg = await new Message({
+        senderId,
+        recipientId,
+        text,
+      }).save();
+
+      io.to(String(senderId)).emit("receiveMessage", savedMsg);
+      io.to(String(recipientId)).emit("receiveMessage", savedMsg);
+
+      console.log("💬 Message sent & broadcast:", savedMsg._id.toString());
+      respond({ ok: true, error: null });
+    } catch (err) {
       console.error("❌ Error saving/sending message:", err);
+      respond({ ok: false, error: "Message could not be saved" });
     }
   });
 
@@ -657,5 +788,9 @@ app.get("*", (req, res, next) => {
 
 // ================= SERVER START =================
 server.listen(PORT, () => {
-  console.log(`🚀 Server (HTTP + Socket.IO) running on http://localhost:${PORT}`);
+  const address = server.address();
+  const listeningPort = typeof address === "object" && address ? address.port : PORT;
+  console.log(`🚀 Server (HTTP + Socket.IO) running on http://localhost:${listeningPort}`);
 });
+
+export { server, io, expiryCheckTask };

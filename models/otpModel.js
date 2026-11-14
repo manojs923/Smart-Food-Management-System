@@ -12,4 +12,4 @@ otpSchema.index({ email: 1, otp: 1 });
 // Create a TTL index on createdAt field
 otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 });
 
-module.exports = mongoose.model("OTP", otpSchema);
+export default mongoose.model("OTP", otpSchema);

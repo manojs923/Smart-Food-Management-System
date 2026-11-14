@@ -22,6 +22,7 @@ import WastageGraph from "./components/WastageGraph";
 import AudioControls from "./components/nombot/AudioControls";
 import RoleRoute, { normalizeRole, getStoredUserRole } from "./components/auth/RoleRoute";
 import { useAuth } from "./contexts/AuthContext";
+import { getCurrentUserId } from "./utils/authUtils";
 import "./App.css";
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const userId = getCurrentUserId(user);
 
     if (!isAuthenticated || !token || !userId || sessionStorage.getItem("locationUpdated") === "true") {
       return;
@@ -68,7 +69,7 @@ function App() {
       (error) => console.warn("Location unavailable:", error.message),
       { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }
     );
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   // Determine normalized role reliably
   const currentRole = normalizeRole(user?.role || getStoredUserRole());
