@@ -1,132 +1,165 @@
-/* Page container */
-.farmer-home-container {
-  width: 90%;
-  max-width: 1300px;
-  margin: 2rem auto;
-  padding: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-}
+/* FarmerHome.css */
+@import "./FarmerCommon.css";
 
-/* Section title */
-.section-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2e7d32;
-  margin-bottom: 1rem;
-}
-
-/* Grid layout for user cards */
-.user-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-/* User card styling */
-.user-card {
-  border: 1px solid #e0e0e0;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
-}
-
-.user-card:hover {
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Card text */
-.user-card h3 {
-  font-size: 1.3rem;
-  margin-bottom: 0.75rem;
-  color: #222;
-}
-
-.user-card p {
-  margin: 0.4rem 0;
-  font-size: 0.95rem;
-  color: #444;
-}
-
-/* Button container */
-.user-card-buttons {
-  margin-top: 1.2rem;
+/* Dashboard Sections (32px vertical spacing) */
+.farmer-dashboard-sections {
   display: flex;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 32px;
 }
 
-/* Buttons */
-.user-btn {
-  padding: 0.7rem 1rem;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-  transition: background 0.2s ease;
+.farmer-dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Interest button */
-.interest-btn {
-  background-color: #4caf50;
-  color: white;
-}
-.interest-btn:hover {
-  background-color: #449d48;
-}
-
-/* Remove interest */
-.not-interested-btn {
-  background-color: #e53935;
-  color: white;
-}
-.not-interested-btn:hover {
-  background-color: #c62828;
+.farmer-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
-/* Message button */
-.message-btn {
-  background-color: #007bff;
-  color: white;
-}
-.message-btn:hover {
-  background-color: #0068d1;
+.farmer-section-icon {
+  font-size: 1.25rem;
+  color: var(--primary);
 }
 
-/* Empty message text */
-.empty-text {
-  color: #777;
-  font-size: 1rem;
-  padding: 1rem 0;
+.farmer-section-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Section Wrapper Card */
-.section-card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  margin-bottom: 2rem;
+.farmer-section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background-color: rgba(22, 163, 74, 0.12);
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
-/* Section title inside the card */
-.section-card .section-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #2e7d32;
-  margin-bottom: 1rem;
+body.dark .farmer-section-badge {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: var(--primary);
 }
 
-/* Empty message box */
-.empty-box {
-  background: #fafafa;
-  border: 1px dashed #bdbdbd;
-  color: #666;
-  padding: 1.2rem;
-  border-radius: 8px;
+/* Users Grid */
+.farmer-users-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Empty State inside a dashed-border box */
+.farmer-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background-color: var(--surface-secondary);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
   text-align: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.farmer-empty-icon {
+  font-size: 2.25rem;
+  color: var(--primary);
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.farmer-empty-title {
   font-size: 1rem;
-  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.farmer-empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+/* Loading Skeleton */
+.farmer-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.farmer-skeleton-card {
+  pointer-events: none;
+}
+
+.farmer-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-secondary) 25%,
+    var(--border) 50%,
+    var(--surface-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: farmer-shimmer 1.5s infinite;
+}
+
+@keyframes farmer-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.farmer-skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+}
+
+.farmer-skeleton-line.title {
+  width: 45%;
+  height: 16px;
+  margin-bottom: 6px;
+}
+
+.farmer-skeleton-line.subtitle {
+  width: 70%;
+  height: 12px;
+}
+
+.farmer-skeleton-btn {
+  width: 90px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+/* Responsive at Mobile (360px - 640px) */
+@media (max-width: 640px) {
+  .farmer-section-title {
+    font-size: 1.1rem;
+  }
+
+  .farmer-empty-state {
+    padding: 24px 12px;
+  }
 }

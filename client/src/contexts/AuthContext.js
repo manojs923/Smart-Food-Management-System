@@ -16,9 +16,11 @@ export const AuthProvider = ({ children }) => {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
           const response = await axios.get("/auth/me");
+          const role = response.data.role || "user";
+          localStorage.setItem("userRole", role);
           setUser({
             email: response.data.email,
-            role: response.data.role || "user",
+            role,
           });
           setIsAuthenticated(true);
         } catch (error) {
@@ -57,10 +59,13 @@ export const AuthProvider = ({ children }) => {
 
       // Save token and update axios
       localStorage.setItem("token", token);
+      if (role) localStorage.setItem("userRole", role);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      setUser({ email: userEmail, role, token });
+      const loggedInUser = { email: userEmail, role, token };
+      setUser(loggedInUser);
       setIsAuthenticated(true);
+      return loggedInUser;
     } catch (error) {
       console.error("❌ Login failed:", error.response?.data || error.message);
       throw error;
@@ -77,6 +82,7 @@ const loginWithGoogle = async (googleToken) => {
     const { token, email, role } = response.data;
 
     localStorage.setItem("token", token);
+    if (role) localStorage.setItem("userRole", role);
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     const newUser = { email, role, token };
@@ -94,6 +100,7 @@ const loginWithGoogle = async (googleToken) => {
   // ✅ Logout user
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
     setIsAuthenticated(false);

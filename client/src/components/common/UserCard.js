@@ -1,37 +1,69 @@
 import React from "react";
+import { FaComments, FaHeart, FaRegHeart } from "react-icons/fa";
+import "../farmer/FarmerCommon.css";
+import "./UserCard.css";
 
 function UserCard({ user, isInterested, onInterestChange, onMessage }) {
-  return (
-    <div className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition">
-      <p className="font-semibold text-gray-800">
-        {user.firstName} {user.lastName}
-      </p>
-      <p className="text-sm text-gray-500">{user.email}</p>
+  const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.username || "Anonymous User";
 
-      <div className="flex gap-3 mt-3">
-        {/* Toggle Interested / Not Interested */}
+  // Avatar initials from name, username, or email
+  const getInitials = () => {
+    const f = user.firstName ? user.firstName.trim()[0] : "";
+    const l = user.lastName ? user.lastName.trim()[0] : "";
+    if (f || l) return `${f}${l}`.toUpperCase();
+    if (user.username) return user.username.slice(0, 2).toUpperCase();
+    if (user.email) return user.email.slice(0, 2).toUpperCase();
+    return "U";
+  };
+
+  return (
+    <div className="farmer-user-card">
+      <div className="farmer-user-info">
+        <div className="farmer-user-avatar" aria-hidden="true">
+          {getInitials()}
+        </div>
+        <div className="farmer-user-details">
+          <h4 className="farmer-user-name">{fullName}</h4>
+          <span className="farmer-user-email">{user.email || "No email provided"}</span>
+        </div>
+      </div>
+
+      <div className="farmer-user-actions">
+        {/* Toggle Interested / Not Interested Button (44px) */}
         {isInterested ? (
           <button
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+            type="button"
+            className="farmer-btn farmer-btn-secondary farmer-btn-interested"
             onClick={() => onInterestChange(user, "not_interested")}
+            title="Click to remove"
+            aria-label="Click to remove"
           >
-            Not Interested
+            <FaHeart className="farmer-btn-icon" />
+            <span>Interested ✓</span>
           </button>
         ) : (
           <button
-            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+            type="button"
+            className="farmer-btn farmer-btn-secondary"
             onClick={() => onInterestChange(user, "interested")}
+            title="Mark Interested"
+            aria-label="Mark Interested"
           >
-            Interested
+            <FaRegHeart className="farmer-btn-icon" />
+            <span>Mark Interested</span>
           </button>
         )}
 
-        {/* Message Button */}
+        {/* Message Button (44px, Primary Variant) */}
         <button
-          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+          type="button"
+          className="farmer-btn farmer-btn-primary"
           onClick={() => onMessage(user)}
+          title={`Message ${fullName}`}
+          aria-label={`Message ${fullName}`}
         >
-          Message
+          <FaComments className="farmer-btn-icon" />
+          <span>Message</span>
         </button>
       </div>
     </div>

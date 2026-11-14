@@ -1,39 +1,51 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { FaUserFriends, FaUsers } from "react-icons/fa";
 import ChatBox from "./ChatBox";
-import UserCard from "../common/UserCard"; // ✅ Import the reusable card
+import UserCard from "../common/UserCard";
+import "./FarmerHome.css";
 
 function FarmerHome() {
   const [interestedUsers, setInterestedUsers] = useState([]);
   const [notInterestedUsers, setNotInterestedUsers] = useState([]);
   const [chatUser, setChatUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch all users
+  // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await axios.get("/api/users");
+        const currentUserId = localStorage.getItem("userId");
         const storedPrefs = JSON.parse(localStorage.getItem("interestPrefs") || "{}");
 
         const interested = [];
         const notInterested = [];
 
-        res.data.forEach((user) => {
-          const pref = storedPrefs[user._id];
-          if (pref === "interested") interested.push(user);
-          else notInterested.push(user);
-        });
+        (res.data || [])
+          .filter((user) => user._id !== currentUserId)
+          .forEach((user) => {
+            const pref = storedPrefs[user._id];
+            if (pref === "interested") {
+              interested.push(user);
+            } else {
+              notInterested.push(user);
+            }
+          });
 
         setInterestedUsers(interested);
         setNotInterestedUsers(notInterested);
       } catch (err) {
-        console.error("❌ Failed to fetch users:", err);
+        console.error("Failed to fetch users:", err);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchUsers();
   }, []);
 
-  // ✅ Handle interest toggle
+  // Handle interest toggle
   const handleInterest = (user, status) => {
     const prefs = JSON.parse(localStorage.getItem("interestPrefs") || "{}");
     prefs[user._id] = status;
@@ -48,59 +60,109 @@ function FarmerHome() {
     }
   };
 
-  // ✅ Start chat
+  // Open Chat
   const handleMessage = (user) => {
     setChatUser(user);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h2 className="text-3xl font-bold text-green-700 mb-6 text-center">
-        Farmer Dashboard 🌾
-      </h2>
+    <div className="farmer-page-container">
+      <div className="farmer-page-card">
+        <h2 className="page-title">Farmer Dashboard 🌾</h2>
 
-      {/* ✅ Interested Users Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-3 text-green-600">Interested Users</h3>
-        {interestedUsers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {interestedUsers.map((user) => (
-              <UserCard
-                key={user._id}
-                user={user}
-                isInterested={true}
-                onInterestChange={handleInterest}
-                onMessage={handleMessage}
-              />
+        {loading ? (
+          /* Loading Skeleton */
+          <div className="farmer-skeleton-container" aria-label="Loading dashboard users">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="farmer-user-card farmer-skeleton-card">
+                <div className="farmer-user-info">
+                  <div className="farmer-user-avatar farmer-skeleton-shimmer" />
+                  <div className="farmer-user-details" style={{ width: "60%" }}>
+                    <div className="farmer-skeleton-line title farmer-skeleton-shimmer" />
+                    <div className="farmer-skeleton-line subtitle farmer-skeleton-shimmer" />
+                  </div>
+                </div>
+                <div className="farmer-user-actions">
+                  <div className="farmer-skeleton-btn farmer-skeleton-shimmer" />
+                  <div className="farmer-skeleton-btn farmer-skeleton-shimmer" />
+                </div>
+              </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">No interested users yet.</p>
-        )}
-      </section>
+          <div className="farmer-dashboard-sections">
+            {/* 1. Interested Users Section */}
+            <section className="farmer-dashboard-section">
+              <div className="farmer-section-header">
+                <FaUserFriends className="farmer-section-icon" />
+                <h3 className="farmer-section-title">
+                  Interested Users
+                  <span className="farmer-section-badge">{interestedUsers.length}</span>
+                </h3>
+              </div>
 
-      {/* ✅ Not Interested / Other Users Section */}
-      <section>
-        <h3 className="text-xl font-semibold mb-3 text-gray-700">Other Users</h3>
-        {notInterestedUsers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {notInterestedUsers.map((user) => (
-              <UserCard
-                key={user._id}
-                user={user}
-                isInterested={false}
-                onInterestChange={handleInterest}
-                onMessage={handleMessage}
-              />
-            ))}
+              {interestedUsers.length > 0 ? (
+                <div className="farmer-users-grid">
+                  {interestedUsers.map((user) => (
+                    <UserCard
+                      key={user._id}
+                      user={user}
+                      isInterested={true}
+                      onInterestChange={handleInterest}
+                      onMessage={handleMessage}
+                    />
+                  ))}
+                </div>
+              ) : (
+                /* Empty state for "No interested users yet" inside a dashed-border box */
+                <div className="farmer-empty-state">
+                  <FaUserFriends className="farmer-empty-icon" />
+                  <p className="farmer-empty-title">No interested users yet</p>
+                  <p className="farmer-empty-desc">
+                    When donors express mutual interest in donating to your farm, they will appear here.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {/* 2. Other Users Section */}
+            <section className="farmer-dashboard-section">
+              <div className="farmer-section-header">
+                <FaUsers className="farmer-section-icon" />
+                <h3 className="farmer-section-title">
+                  Other Users
+                  <span className="farmer-section-badge">{notInterestedUsers.length}</span>
+                </h3>
+              </div>
+
+              {notInterestedUsers.length > 0 ? (
+                <div className="farmer-users-grid">
+                  {notInterestedUsers.map((user) => (
+                    <UserCard
+                      key={user._id}
+                      user={user}
+                      isInterested={false}
+                      onInterestChange={handleInterest}
+                      onMessage={handleMessage}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="farmer-empty-state">
+                  <FaUsers className="farmer-empty-icon" />
+                  <p className="farmer-empty-title">No other users available</p>
+                  <p className="farmer-empty-desc">
+                    Registered donors on GreenNest will be listed here.
+                  </p>
+                </div>
+              )}
+            </section>
           </div>
-        ) : (
-          <p className="text-gray-500">No users available.</p>
         )}
-      </section>
 
-      {/* ✅ Chat Box Popup */}
-      {chatUser && <ChatBox user={chatUser} onClose={() => setChatUser(null)} />}
+        {/* Chat Box Popup */}
+        {chatUser && <ChatBox user={chatUser} onClose={() => setChatUser(null)} />}
+      </div>
     </div>
   );
 }

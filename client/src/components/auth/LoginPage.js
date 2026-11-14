@@ -24,6 +24,10 @@ const LoginPage = () => {
   const location = useLocation();
   const { login, loginWithGoogle, user } = useAuth();
 
+  const getDestination = (role) => {
+    return role === "farmer" ? "/farmer/dashboard" : "/home";
+  };
+
   // ✅ Handle Normal Email/Password Login
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -31,9 +35,10 @@ const LoginPage = () => {
     setSuccess("");
     try {
       console.log("📤 Attempting login:", { email, password });
-      await login(email, password);
+      const loggedIn = await login(email, password);
       setSuccess("✅ Login successful! Redirecting...");
-      setTimeout(() => navigate("/home"), 1000);
+      const target = getDestination(loggedIn?.role || user?.role);
+      setTimeout(() => navigate(target), 600);
     } catch (err) {
       console.error("❌ Login error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Login failed. Please try again.");
@@ -91,14 +96,17 @@ const LoginPage = () => {
     const token = queryParams.get("token");
     if (token) {
       console.log("🔑 Google OAuth token detected");
-      loginWithGoogle(token);
-      navigate("/home");
+      loginWithGoogle(token).then((res) => {
+        navigate(getDestination(res?.role));
+      }).catch(() => {
+        navigate("/home");
+      });
     }
   }, [location.search, loginWithGoogle, navigate]);
 
   // ✅ Redirect if already logged in
   useEffect(() => {
-    if (user) navigate("/home");
+    if (user) navigate(getDestination(user.role));
   }, [user, navigate]);
 
   return (

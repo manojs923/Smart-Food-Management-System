@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { FaSave, FaSpinner } from "react-icons/fa";
 import "./FarmerSetup.css";
 
 function FarmerSetup() {
@@ -14,17 +14,15 @@ function FarmerSetup() {
     state: "",
     district: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const isEditMode = location.search.includes("edit=true");
 
-  // ✅ Fetch saved data if editing profile
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!isEditMode) return;
-
       const token = localStorage.getItem("token");
       if (!token) return;
 
@@ -33,150 +31,216 @@ function FarmerSetup() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setFormData(res.data);
+        if (res.data) {
+          setFormData((prev) => ({
+            ...prev,
+            ...res.data,
+            country: res.data.country || "India",
+          }));
+        }
       } catch (err) {
-        console.error("❌ Failed to load existing profile:", err);
+        console.warn("No existing profile found or error fetching profile:", err);
       }
     };
 
     fetchProfile();
   }, [isEditMode]);
 
-  // Handle form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (feedback.message) setFeedback({ type: "", message: "" });
   };
 
-  // Save or update profile
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setFeedback({ type: "", message: "" });
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("Please log in first.");
+      if (!token) {
+        setFeedback({ type: "error", message: "Please log in first to save your profile." });
+        setLoading(false);
+        return;
+      }
 
       await axios.post("/api/farmer/setup", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("✅ Profile saved successfully!");
-      navigate("/farmer-profile");
+      setFeedback({ type: "success", message: "Profile saved successfully! Redirecting..." });
+      setTimeout(() => {
+        navigate("/farmer/profile");
+      }, 700);
     } catch (err) {
-      console.error("❌ Error saving profile:", err);
-      alert("Failed to save. Try again.");
+      console.error("Error saving farmer profile:", err);
+      setFeedback({ type: "error", message: "Failed to save profile. Please try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg"
-      >
-        <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">
-          {isEditMode ? "✏️ Edit Farmer Profile" : "👨‍🌾 Farmer Profile Setup"}
+    <div className="farmer-page-container">
+      <div className="farmer-page-card farmer-setup-card">
+        {/* Centered Page Title with Short Accent Underline */}
+        <h2 className="page-title">
+          {isEditMode ? "Edit Farm Profile" : "My Farm Setup"}
         </h2>
 
-        {/* Full Name */}
-        <label className="block mb-3">
-          <span className="text-gray-700">Full Name</span>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded mt-1"
-            placeholder="Enter your full name"
-          />
-        </label>
-
-        {/* Farming Type */}
-        <label className="block mb-3">
-          <span className="text-gray-700">Farming Type</span>
-          <select
-            name="farmingType"
-            value={formData.farmingType}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded mt-1"
+        {/* Inline Feedback Banner */}
+        {feedback.message && (
+          <div
+            className={`farmer-inline-alert ${feedback.type === "success" ? "success" : ""}`}
+            role="alert"
           >
-            <option value="">Select type</option>
-            <option value="Vegetable Farming">Vegetable Farming</option>
-            <option value="Fruit Farming">Fruit Farming</option>
-            <option value="Mixed Farming">Mixed Farming</option>
-            <option value="Dairy Farming">Dairy Farming</option>
-            <option value="Organic Farming">Organic Farming</option>
-          </select>
-        </label>
+            <span>{feedback.type === "success" ? "✓" : "⚠️"} {feedback.message}</span>
+          </div>
+        )}
 
-        {/* Crops */}
-        <label className="block mb-3">
-          <span className="text-gray-700">Crops You Grow</span>
-          <input
-            type="text"
-            name="crops"
-            value={formData.crops}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded mt-1"
-            placeholder="e.g., Tomato, Onion, Rice"
-          />
-        </label>
+        <form onSubmit={handleSubmit} className="farmer-setup-form">
+          {/* Two-Column Grid on Desktop, Single-Column on Mobile */}
+          <div className="farmer-setup-grid">
+            {/* Full Name */}
+            <div className="farmer-form-group">
+              <label htmlFor="fullName" className="farmer-form-label">
+                Full Name
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                className="farmer-form-input"
+                placeholder="Enter your full name"
+              />
+            </div>
 
-        {/* Farm Size */}
-        <label className="block mb-3">
-          <span className="text-gray-700">Farm Size (acres)</span>
-          <input
-            type="number"
-            name="farmSize"
-            value={formData.farmSize}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded mt-1"
-          />
-        </label>
+            {/* Farming Type */}
+            <div className="farmer-form-group">
+              <label htmlFor="farmingType" className="farmer-form-label">
+                Farming Type
+              </label>
+              <select
+                id="farmingType"
+                name="farmingType"
+                value={formData.farmingType}
+                onChange={handleChange}
+                required
+                className="farmer-form-select"
+              >
+                <option value="">Select farming type</option>
+                <option value="Vegetable Farming">Vegetable Farming</option>
+                <option value="Fruit Farming">Fruit Farming</option>
+                <option value="Mixed Farming">Mixed Farming</option>
+                <option value="Dairy Farming">Dairy Farming</option>
+                <option value="Organic Farming">Organic Farming</option>
+              </select>
+            </div>
 
-        {/* Location */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <label>
-            <span className="text-gray-700">State</span>
-            <select
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              required
-              className="w-full border p-2 rounded mt-1"
+            {/* Crops */}
+            <div className="farmer-form-group">
+              <label htmlFor="crops" className="farmer-form-label">
+                Crops You Grow
+              </label>
+              <input
+                id="crops"
+                type="text"
+                name="crops"
+                value={formData.crops}
+                onChange={handleChange}
+                required
+                className="farmer-form-input"
+                placeholder="e.g., Tomato, Onion, Rice"
+              />
+            </div>
+
+            {/* Farm Size */}
+            <div className="farmer-form-group">
+              <label htmlFor="farmSize" className="farmer-form-label">
+                Farm Size (acres)
+              </label>
+              <input
+                id="farmSize"
+                type="number"
+                step="0.1"
+                name="farmSize"
+                value={formData.farmSize}
+                onChange={handleChange}
+                required
+                className="farmer-form-input"
+                placeholder="e.g., 5"
+              />
+            </div>
+
+            {/* State */}
+            <div className="farmer-form-group">
+              <label htmlFor="state" className="farmer-form-label">
+                State
+              </label>
+              <select
+                id="state"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                required
+                className="farmer-form-select"
+              >
+                <option value="">Select State</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            {/* District */}
+            <div className="farmer-form-group">
+              <label htmlFor="district" className="farmer-form-label">
+                District
+              </label>
+              <input
+                id="district"
+                type="text"
+                name="district"
+                value={formData.district}
+                onChange={handleChange}
+                required
+                className="farmer-form-input"
+                placeholder="Enter district"
+              />
+            </div>
+          </div>
+
+          {/* Right-Aligned Save Button on Desktop, Full Width on Mobile */}
+          <div className="farmer-setup-action-row">
+            <button
+              type="submit"
+              disabled={loading}
+              className="farmer-btn farmer-btn-primary farmer-setup-save-btn"
             >
-              <option value="">Select State</option>
-              <option value="Karnataka">Karnataka</option>
-              <option value="Maharashtra">Maharashtra</option>
-              <option value="Kerala">Kerala</option>
-              <option value="Tamil Nadu">Tamil Nadu</option>
-            </select>
-          </label>
-
-          <label>
-            <span className="text-gray-700">District</span>
-            <input
-              type="text"
-              name="district"
-              value={formData.district}
-              onChange={handleChange}
-              required
-              className="w-full border p-2 rounded mt-1"
-            />
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
-        >
-          {isEditMode ? "Save Changes" : "Save Profile"}
-        </button>
-      </form>
+              {loading ? (
+                <>
+                  <FaSpinner className="farmer-btn-spinner" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <FaSave className="farmer-btn-icon" />
+                  <span>{isEditMode ? "Save Changes" : "Save Profile"}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

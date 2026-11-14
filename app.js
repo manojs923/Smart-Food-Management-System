@@ -27,6 +27,7 @@ dotenv.config();
 import sendOtpEmail from "./client/utils/sendOtpEmail.js";
 import generateOTP from "./client/utils/generateOtp.js";
 import auth from "./middleware/auth.js";
+import requireRole from "./middleware/requireRole.js";
 
 // === Routes ===
 import foodRoutes from "./routes/foodRoutes.js";
@@ -476,7 +477,7 @@ app.get("/api/users", async (req, res) => {
 
 // === Main App Routes (Food, Wastage, etc.) ===
 // These MUST be protected by the 'auth' middleware
-app.use("/food", auth, foodRoutes);
+app.use("/food", auth, requireRole(["donor", "user"]), foodRoutes);
 app.use("/wastage", auth, wastageRoutes);
 app.use("/notifications", auth, notificationRoutes);
 app.use("/reports", auth, reportRoutes);

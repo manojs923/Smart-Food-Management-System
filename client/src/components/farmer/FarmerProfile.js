@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
-  FaSeedling,
   FaUser,
-  FaMapMarkedAlt,
+  FaSeedling,
   FaTractor,
-  FaClipboardList,
+  FaRulerCombined,
+  FaGlobeAsia,
+  FaMapMarkedAlt,
+  FaCity,
   FaEdit,
 } from "react-icons/fa";
-
 import "./FarmerProfile.css";
 
 function FarmerProfile() {
@@ -24,7 +25,7 @@ function FarmerProfile() {
         const token = localStorage.getItem("token");
 
         if (!token) {
-          setError("Please login to view profile.");
+          setError("Please log in to view your profile.");
           setLoading(false);
           return;
         }
@@ -35,8 +36,8 @@ function FarmerProfile() {
 
         setProfile(res.data);
       } catch (err) {
-        console.error("❌ Error fetching profile:", err);
-        setError("Failed to load profile.");
+        console.error("Error fetching farmer profile:", err);
+        setError("Failed to load profile. Please complete your farm profile setup.");
       } finally {
         setLoading(false);
       }
@@ -45,33 +46,93 @@ function FarmerProfile() {
     fetchProfile();
   }, []);
 
-  if (loading) return <p className="text-center mt-6">Loading profile...</p>;
-  if (error) return <p className="text-center mt-6 text-red-500">{error}</p>;
+  const getInitials = (name) => {
+    if (!name) return "👨‍🌾";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <div className="farmer-page-container">
+        <div className="farmer-page-card text-center py-12">
+          <p className="farmer-muted-text">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="farmer-page-container">
+        <div className="farmer-page-card text-center py-12">
+          <p className="farmer-inline-alert mb-6">{error || "No profile found."}</p>
+          <button
+            type="button"
+            onClick={() => navigate("/farmer/my-farm")}
+            className="farmer-btn farmer-btn-primary"
+          >
+            🌱 Set Up Farm Profile
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const profileFields = [
+    { label: "Farming Type", value: profile.farmingType, icon: FaTractor },
+    { label: "Primary Crops", value: profile.crops, icon: FaSeedling },
+    { label: "Farm Size", value: profile.farmSize ? `${profile.farmSize} acres` : null, icon: FaRulerCombined },
+    { label: "Country", value: profile.country, icon: FaGlobeAsia },
+    { label: "State", value: profile.state, icon: FaMapMarkedAlt },
+    { label: "District", value: profile.district, icon: FaCity },
+  ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 p-6">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xl">
-        <h2 className="text-3xl font-bold text-green-700 mb-6 text-center">
-          👨‍🌾 Farmer Profile
-        </h2>
+    <div className="farmer-page-container">
+      <div className="farmer-page-card">
+        {/* Centered Page Title with Short Accent Underline */}
+        <h2 className="page-title">Farmer Profile</h2>
 
-        <div className="space-y-4 text-lg">
-          <p><strong>Full Name:</strong> {profile.fullName}</p>
-          <p><strong>Farming Type:</strong> {profile.farmingType}</p>
-          <p><strong>Crops:</strong> {profile.crops}</p>
-          <p><strong>Farm Size:</strong> {profile.farmSize} acres</p>
-          <p><strong>Country:</strong> {profile.country}</p>
-          <p><strong>State:</strong> {profile.state}</p>
-          <p><strong>District:</strong> {profile.district}</p>
+        {/* Profile Header Card */}
+        <div className="farmer-profile-header-card">
+          <div className="farmer-profile-avatar-circle" aria-hidden="true">
+            {getInitials(profile.fullName)}
+          </div>
+          <div className="farmer-profile-header-info">
+            <h3 className="farmer-profile-name">{profile.fullName || "Farmer"}</h3>
+            <span className="farmer-profile-badge">{profile.farmingType || "Agricultural Farmer"}</span>
+          </div>
         </div>
 
-        {/* ✅ EDIT PROFILE BUTTON */}
-        <button
-          onClick={() => navigate("/farmer-setup?edit=true")}
-          className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          ✏️ Edit Profile
-        </button>
+        {/* Details in a Labelled Grid */}
+        <div className="farmer-profile-grid">
+          {profileFields.map(({ label, value, icon: Icon }) => (
+            <div key={label} className="farmer-profile-item">
+              <div className="farmer-profile-item-icon">
+                <Icon />
+              </div>
+              <div className="farmer-profile-item-content">
+                <span className="farmer-profile-label">{label}</span>
+                <span className="farmer-profile-value">{value || "Not provided"}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Aligned Edit/Save Button Row */}
+        <div className="farmer-profile-actions">
+          <button
+            type="button"
+            onClick={() => navigate("/farmer/my-farm?edit=true")}
+            className="farmer-btn farmer-btn-primary farmer-profile-edit-btn"
+            aria-label="Edit Profile"
+          >
+            <FaEdit className="farmer-btn-icon" />
+            <span>Edit Profile</span>
+          </button>
+        </div>
       </div>
     </div>
   );

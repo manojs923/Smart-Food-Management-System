@@ -4,6 +4,8 @@ import fs from "fs";
 import path from "path";
 import { analyzeFoodImage } from "../utils/foodAI.js";
 import { GeminiApiError } from "../utils/geminiClient.js";
+import auth from "../middleware/auth.js";
+import requireRole from "../middleware/requireRole.js";
 
 const router = express.Router();
 const AI_BUSY_MESSAGE = "The AI assistant is busy right now. Please try again in a moment.";
@@ -28,24 +30,32 @@ const upload = multer({
   },
 });
 
-router.post("/analyze", upload.single("image"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No image uploaded" });
+// ✅ Donor-only food scanning route
+router.post(
+  "/analyze",
+  auth,
+  requireRole(["donor", "user"]),
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+
+      const analysis = await analyzeFoodImage(req.file.path);
+      res.status(200).json({ message: "Food analysis successful", data: analysis });
+    } catch (error) {
+      console.error("AI route error:", error);
+      const status = error instanceof GeminiApiError
+        ? ([429, 500, 503].includes(error.status) ? 503 : 502)
+        : 500;
+      res.status(status).json({ message: AI_BUSY_MESSAGE });
     }
-
-    const analysis = await analyzeFoodImage(req.file.path);
-    res.status(200).json({ message: "Food analysis successful", data: analysis });
-  } catch (error) {
-    console.error("AI route error:", error);
-    const status = error instanceof GeminiApiError
-      ? ([429, 500, 503].includes(error.status) ? 503 : 502)
-      : 500;
-    res.status(status).json({ message: AI_BUSY_MESSAGE });
   }
-});
+);
 
-router.post("/farming-ideas", async (req, res) => {
+// ✅ Farming ideas route (open to authenticated farmers)
+router.post("/farming-ideas", auth, requireRole(["farmer"]), async (req, res) => {
   const { items } = req.body;
   if (typeof items !== "string" || !items.trim()) {
     return res.status(400).json({ message: "Please provide food items." });

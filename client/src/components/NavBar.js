@@ -99,19 +99,24 @@ const NavBar = () => {
                 <span className="navbar-text">Dashboard</span>
               </Link>
 
-              <Link to="/farmer/produce" className={getActiveClass('/farmer/produce')}>
+              <Link to="/farmer/my-farm" className={getActiveClass('/farmer/my-farm')}>
                 <FaSeedling className="navbar-icon" />
-                <span className="navbar-text">My Produce</span>
+                <span className="navbar-text">My Farm</span>
               </Link>
 
-              <Link to="/farmer/inventory" className={getActiveClass('/farmer/inventory')}>
-                <FaWarehouse className="navbar-icon" />
-                <span className="navbar-text">Inventory</span>
+              <Link to="/farmer/ideas" className={getActiveClass('/farmer/ideas')}>
+                <FaGift className="navbar-icon" />
+                <span className="navbar-text">Ideas</span>
               </Link>
 
-              <Link to="/farmer/wastage" className={getActiveClass('/farmer/wastage')}>
+              <Link to="/farmer/messages" className={getActiveClass('/farmer/messages')}>
                 <FaChartBar className="navbar-icon" />
-                <span className="navbar-text">Wastage</span>
+                <span className="navbar-text">Messages</span>
+              </Link>
+
+              <Link to="/farmer/profile" className={getActiveClass('/farmer/profile')}>
+                <FaUser className="navbar-icon" />
+                <span className="navbar-text">Profile</span>
               </Link>
             </>
           ) : (

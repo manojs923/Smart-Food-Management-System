@@ -19,6 +19,43 @@
   --badge-color: white;
   --transition-speed: 0.3s;
   --border-radius: 8px;
+
+  /* Theme variables */
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-secondary: #f8fafc;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --border: #e2e8f0;
+  --primary: #15803d;
+  --primary-hover: #166534;
+  --primary-text: #ffffff;
+  --primary-tint: rgba(21, 128, 61, 0.12);
+  --primary-tint-text: #166534;
+  --secondary: #2563eb;
+  --secondary-hover: #1d4ed8;
+  --accent: #10b981;
+}
+
+body.dark {
+  --bg: #0b1120;
+  --surface: #1e293b;
+  --surface-secondary: #0f172a;
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --border: #334155;
+  --primary: #22c55e;
+  --primary-hover: #16a34a;
+  --primary-text: #0f172a;
+  --primary-tint: rgba(34, 197, 94, 0.18);
+  --primary-tint-text: #4ade80;
+  --secondary: #3b82f6;
+  --secondary-hover: #2563eb;
+  --accent: #10b981;
+  --card-bg: #1e293b;
+  --bg-color: #0b1120;
+  --text-color: #f8fafc;
+  --border-color: #334155;
 }
 /* Base styles */
 * {
@@ -105,7 +142,7 @@ body.dark::after {
   z-index: 0;
   background: url('/public/rename.jpg') center center/cover no-repeat;
   border-radius: inherit;
-  opacity: 1;
+  opacity: 0.04;
   filter: invert(1);
   pointer-events: none;
   transition: filter 0.3s;
@@ -122,6 +159,17 @@ body.dark .content-wrapper {
 }
 
 /* Remove doodle background and wrapper padding when nombot page is displayed */
+.content-wrapper:has(.farmer-page-container) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.content-wrapper:has(.farmer-page-container)::before {
+  display: none !important;
+}
+
 .content-wrapper:has(.nombot-page-wrapper) {
   background: transparent !important;
   box-shadow: none !important;
@@ -171,12 +219,169 @@ h1 {
 h2 {
   color: #0056b3;
   margin-top: 40px;
-  border-bottom: 2px solid #0056b3;
+  /* border-bottom: 2px solid #0056b3; */
   padding-bottom: 10px;
   position: relative;
   overflow: hidden;
   font-size: 2rem;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
 }
 
 /* Forms and inputs */
@@ -213,16 +418,178 @@ button:hover, .btn:hover {
 /* Theme toggle */
 .theme-toggle-container {
   position: fixed;
-  top: 70px;
+  top: 74px;
   right: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
-  z-index: 99;
+  z-index: 999;
+  background-color: var(--surface, #ffffff);
+  padding: 6px 14px;
+  border-radius: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border, #e2e8f0);
 }
 
 .theme-toggle-container span {
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   font-size: 0.85rem;
   color: #111827;
   transition: color 0.3s ease;
@@ -337,7 +704,7 @@ body.light::before {
     transform: translateY(24px);
   }
   to {
-    opacity: 1;
+    opacity: 0.04;
     transform: translateY(0);
   }
 }
@@ -430,6 +797,163 @@ button,
   text-align: center;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   font-size: 16px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -547,6 +1071,163 @@ button {
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -624,6 +1305,163 @@ li span {
   font-weight: 600;
 }
 
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+}
+
 .expired {
   color: #ff3b30;
   font-weight: bold;
@@ -685,6 +1523,163 @@ body.dark .expired {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -719,6 +1714,163 @@ body.dark .btn {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -778,6 +1930,163 @@ body.dark .go-btn:hover {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -797,6 +2106,163 @@ body.dark .btn {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -896,6 +2362,163 @@ button:focus-visible, input:focus-visible {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -1000,6 +2623,163 @@ body.dark select {
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
   transition: all 0.3s ease;
@@ -1018,6 +2798,163 @@ body.dark .login-btn {
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
   transition: all 0.3s ease;
@@ -1103,6 +3040,163 @@ body.dark .delete-btn {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -1143,6 +3237,163 @@ body.dark .btn {
   position: relative;
   overflow: hidden;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   letter-spacing: 0.5px;
 }
 
@@ -1381,7 +3632,7 @@ label input {
     transform: translateY(20px);
   }
   to {
-    opacity: 1;
+    opacity: 0.04;
     transform: translateY(0);
   }
 }
@@ -1392,6 +3643,163 @@ label input {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -1445,6 +3853,163 @@ label input {
   font-weight: 600;
 }
 
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+}
+
 .wastage-graph button {
   margin: 0 6px;
   padding: 8px 16px;
@@ -1479,7 +4044,7 @@ label input {
     transform: translateY(30px);
   }
   to {
-    opacity: 1;
+    opacity: 0.04;
     transform: translateY(0);
   }
 }
@@ -1616,6 +4181,163 @@ body.dark .wastage-chart text {
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
 }
@@ -1909,6 +4631,163 @@ body.dark .stat-card {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
 }
 
 .status-badge {
@@ -2234,7 +5113,7 @@ body.dark .stat-card {
 }
 
 .badge-earned {
-  opacity: 1;
+  opacity: 0.04;
   background-color: var(--card-bg, white);
   transform: scale(1.02);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -2436,6 +5315,163 @@ body.dark .badge-locked {
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -2764,6 +5800,163 @@ body.light .artistic-bg-img {
   font-weight: 600;
 }
 
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+}
+
 .pickup-form input,
 .pickup-form select {
   width: 100%;
@@ -2878,7 +6071,7 @@ body.dark .nombot-audio-popover {
     transform: translateY(-6px) scale(0.97);
   }
   to {
-    opacity: 1;
+    opacity: 0.04;
     transform: translateY(0) scale(1);
   }
 }
@@ -2909,6 +6102,163 @@ body.dark .nombot-popover-header {
   padding: 4px 10px;
   font-size: 0.72rem;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   border-radius: 6px;
   border: 1px solid #d1d5db;
   background: transparent;
@@ -2949,6 +6299,163 @@ body.dark .nombot-mute-toggle-btn {
 .nombot-control-label {
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+
+.page-title,
+h2.page-title {
+  text-align: center;
+  color: var(--text, #0f172a);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 auto 24px auto;
+  padding-bottom: 0;
+  border-bottom: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+body.dark .page-title,
+body.dark h2.page-title {
+  color: var(--text, #f8fafc);
+}
+
+.page-title::after,
+.page-title-underline {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  background-color: var(--primary, #16a34a);
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+/* Global Centered Card & Page Wrapper for Farmer Pages */
+.farmer-page-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 32px;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+.farmer-page-card {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 16px;
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  color: var(--text, #0f172a);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.dark .farmer-page-card {
+  background-color: var(--surface, #1e293b);
+  border-color: var(--border, #334155);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text, #f8fafc);
+}
+
+/* Standardized Button Styles on 8px Scale */
+.farmer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.farmer-btn-primary {
+  background-color: var(--primary, #16a34a);
+  color: #ffffff;
+}
+
+.farmer-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover, #15803d);
+  transform: translateY(-1px);
+}
+
+.farmer-btn-secondary {
+  background-color: var(--surface-secondary, #f8fafc);
+  color: var(--text, #0f172a);
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+body.dark .farmer-btn-secondary {
+  background-color: var(--surface-secondary, #0f172a);
+  color: var(--text, #f8fafc);
+  border-color: var(--border, #334155);
+}
+
+.farmer-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(22, 163, 74, 0.08);
+  border-color: var(--primary, #16a34a);
+  color: var(--primary, #16a34a);
+}
+
+.farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+body.dark .farmer-btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.farmer-btn-danger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.farmer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .farmer-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 16px;
+  }
+
+  .farmer-page-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .page-title,
+  h2.page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
   display: flex;
   align-items: center;
   gap: 8px;
