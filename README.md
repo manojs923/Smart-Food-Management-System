@@ -2,6 +2,8 @@
 
 GreenNest is a food-management web app for keeping track of food inventory, expiry dates, and food waste. It includes a React frontend and an Express API backed by MongoDB.
 
+**Live app:** [https://smart-food-management-system.onrender.com](https://smart-food-management-system.onrender.com)
+
 ## What you can do
 
 - Create an account and sign in with email/password; Google sign-in is also available.

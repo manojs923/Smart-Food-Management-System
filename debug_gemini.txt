@@ -1,1 +1,2 @@
 Historical Gemini diagnostics cleared; request logging now omits model response content.
+\n[2026-11-14T10:48:21.180Z] Sending request to Gemini...\n✅ Success!\n\n[2026-11-14T10:48:40.010Z] Sending request to Gemini...\n✅ Success!\n
